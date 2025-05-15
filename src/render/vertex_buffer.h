@@ -1,0 +1,68 @@
+#ifndef VERTEXBUFFER_H
+#define VERTEXBUFFER_H
+
+#include <vector>
+#include <bitset>
+#include <cstdint>
+
+class VertexBuffer
+{
+public:
+    enum class State
+    {
+        NODATA,
+        INITDATA,
+        COMITTED
+    };
+
+    struct ComponentsBitPos
+    {
+        constexpr static int pos    = 0;
+        constexpr static int normal = 1;
+        constexpr static int tex    = 2;
+    };
+
+    using ComponentsFlags = std::bitset<8>;   // pos always true
+
+    constexpr static ComponentsFlags null         = 0b000000;   // null
+    constexpr static ComponentsFlags pos          = 0b000001;   // pos
+    constexpr static ComponentsFlags pos_norm     = 0b000011;   // pos + norm
+    constexpr static ComponentsFlags pos_norm_tex = 0b000111;   // pos + norm + tex
+
+    VertexBuffer(ComponentsFlags format = pos_norm_tex, uint32_t num_tex_channels = 1);
+    virtual ~VertexBuffer();
+
+    void insertVertices(uint32_t const index, float const * pos, std::vector<float const *> const & tex,
+                        float const * norm, uint32_t const vcount);
+    void insertIndices(uint32_t const index, uint32_t const * indices, uint32_t const icount);
+    void pushBack(float const * pos, std::vector<float const *> const & tex, float const * norm,
+                  uint32_t const vcount, uint32_t const * indices, uint32_t const icount);
+
+    void eraseVertices(uint32_t const first, uint32_t const last);
+    void clear();
+
+    ComponentsFlags getComponentsFlags() const { return m_components; }
+    uint32_t        getNumTexChannels() const { return static_cast<uint32_t>(m_texs.size()); }
+
+private:
+    std::vector<float>              m_pos;
+    std::vector<std::vector<float>> m_texs;   // m_tex.size() == m_tex_id.size()
+    std::vector<float>              m_norm;
+    uint32_t                        m_pos_id = 0;
+    std::vector<uint32_t>           m_texs_ids;
+    uint32_t                        m_norm_id = 0;
+
+    std::vector<uint32_t> m_indices;
+    uint32_t              m_indices_id = 0;
+
+    ComponentsFlags const m_components;
+    bool                  m_is_generated = false;
+    State                 m_state        = State::NODATA;
+
+    friend class RendererBase;
+};
+
+void Add2DRectangle(VertexBuffer & vb, float x0, float y0, float x1, float y1, float s0, float t0, float s1,
+                    float t1);
+
+#endif

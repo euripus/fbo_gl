@@ -1,0 +1,94 @@
+#include "texture.h"
+#include <glm/gtc/matrix_transform.hpp>
+
+bool Texture::loadImageDataFromFile(std::string const & fname)
+{
+    tex::ImageData image;
+    if(!tex::ReadTGA(fname, image))
+        return false;
+
+    m_comitted = false;
+    m_gen_mips = true;
+    m_type     = Type::TEXTURE_2D;
+    m_format   = image.type == tex::ImageData::PixelType::pt_rgb ? Format::R8G8B8 : Format::R8G8B8A8;
+    m_width    = image.width;
+    m_height   = image.height;
+    m_data.push_back(std::move(image));
+
+    m_sampler.max = Filter::LINEAR;
+    m_sampler.min = Filter::LINEAR_MIPMAP_LINEAR;
+
+    return true;
+}
+
+glm::mat4 TextureProjector::getTransformMatrix() const
+{
+    assert(projected_texture != nullptr);
+    assert(projected_texture->m_height > 0);
+
+    glm::mat4 reflect = glm::mat4(1.f);
+
+    // clang-format off
+    glm::mat4 const bias_matrix(0.5f, 0.0f, 0.0f, 0.0f,
+                                0.0f, 0.5f, 0.0f, 0.0f,
+                                0.0f, 0.0f, 0.5f, 0.0f,
+                                0.5f, 0.5f, 0.5f, 1.0f);
+    // clang-format on
+
+    if(is_reflection)
+        reflect = reflection;
+
+    return bias_matrix * getProjectionMatrix() * reflect * getModelviewMatrix();
+}
+
+glm::mat4 TextureProjector::getProjectionMatrix() const
+{
+    glm::mat4 projection_matrix(1.0f);
+    float     aspect =
+        static_cast<float>(projected_texture->m_width) / static_cast<float>(projected_texture->m_height);
+
+    if(is_ortho)
+    {
+        if(projected_texture->m_width >= projected_texture->m_height)
+        {
+            projection_matrix = glm::ortho(-10.0f * aspect, 10.0f * aspect, -10.0f, 10.0f, 0.1f, 100.0f);
+        }
+        else
+        {
+            projection_matrix = glm::ortho(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f);
+        }
+    }
+    else
+        projection_matrix = glm::perspective(glm::radians(fovy), aspect, 0.1f, 100.0f);
+
+    return projection_matrix;
+}
+
+glm::mat4 TextureProjector::getModelviewMatrix() const
+{
+    if(is_mdv_matrix)
+        return modelview;
+
+    return glm::lookAt(prj_pos, prj_pov, prj_up);
+}
+
+glm::mat4 TextureProjector::GetReflectionMatrix(glm::vec4 plane)
+{
+    glm::vec4 c0(1.f - 2.f * plane.x * plane.x, -2.f * plane.x * plane.y, -2.f * plane.x * plane.z, 0.f),
+        c1(-2.f * plane.x * plane.y, 1.f - 2.f * plane.y * plane.y, -2.f * plane.y * plane.z, 0.f),
+        c2(-2.f * plane.x * plane.z, -2.f * plane.y * plane.z, 1.f - 2.f * plane.z * plane.z, 0.f),
+        c3(-2.f * plane.x * plane.w, -2.f * plane.y * plane.w, -2.f * plane.z * plane.w, 1.f);
+
+    return glm::mat4(c0, c1, c2, c3);
+}
+
+glm::vec4 TextureProjector::GetPlaneFromPoints(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)
+{
+    auto vec_a = glm::normalize(p1 - p0);
+    auto vec_b = glm::normalize(p2 - p0);
+
+    auto  norm = glm::normalize(glm::cross(vec_a, vec_b));
+    float d    = -(norm.x * p0.x + norm.y * p0.y + norm.z * p0.z);
+
+    return glm::vec4(norm, d);
+}

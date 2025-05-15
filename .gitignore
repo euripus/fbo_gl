@@ -1,0 +1,13 @@
+*.[oa]
+*.dll
+*.lib
+*.exe
+*~
+*.user
+*.user.*
+obj/
+include/
+lib/
+bin/*.tga
+bin/fbo_test
+bin/fbo_test_d

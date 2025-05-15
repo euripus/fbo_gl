@@ -1,0 +1,48 @@
+      columns
+| m00 m10 m20 m30 |
+| m01 m11 m21 m31 |    rows
+| m02 m12 m22 m32 |
+| m03 m13 m23 m33 |
+
+//ctor
+glm::mat4 m( m00, m01, m02, m03,  // first column
+             m10, m11, m12, m13,  // second column
+             m20, m21, m22, m23,  // third column
+             m30, m31, m32, m33); // fourth column
+
+--------------------//-------------------------------
+Camera vectors from view matrix:
+  view = -1.0 * vec3(m[2][0], m[2][1], m[2][2]);
+  up   = vec3(m[1][0], m[1][1], m[1][2]);
+  pos  = M^(-1) * vec4(0, 0, 0, 1) = vec3(inv_m[3][0], inv_m[3][1], inv_m[3][2]);
+
+--------------------//--------------------------------
+https://community.khronos.org/t/help-with-planar-reflections/46893
+Planar mirror:
+- make reflection matrix
+- reflect modelview
+- render scene with prj matrix and new modelview
+- create tex_gen matrix
+- send tex_gen matrix (set 4 rows from tex_gen matrix)
+
+RM
+RM * MW
+PRJ * RM * MV
+TG = Bias * PRJ * RM * MV
+
+Reflection matrix generation:
+plane = [vec3 norm(), float d]
+
+M = | 1-2nx²   -2nx*ny  -2nx*nz  -2nx*d |
+    | -2nx*ny  1-2ny²   -2ny*nz  -2ny*d |
+    | -2nx*nz  -2ny*nz   1-2nz²  -2nz*d |
+    |   0        0         0       1    |
+
+float d = -(nx * px + ny * py + nz * pz); // px, py, pz - any point from plane
+glm::mat4 reflectionMatrix(
+    1.0f - 2.0f * nx * nx, -2.0f * nx * ny, -2.0f * nx * nz, 0.0f, // column 1
+    -2.0f * nx * ny, 1.0f - 2.0f * ny * ny, -2.0f * ny * nz, 0.0f, // column 2
+    -2.0f * nx * nz, -2.0f * ny * nz, 1.0f - 2.0f * nz * nz, 0.0f, // column 3
+    -2.0f * nx * d, -2.0f * ny * d, -2.0f * nz * d, 1.0f           // column 4
+);
+

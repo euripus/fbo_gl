@@ -1,0 +1,51 @@
+https://www.khronos.org/opengl/wiki/Texture_Combiners
+
+GL_TEXTURE_ENV_MODE
+    GL_ADD               // [fragment color] Operation [texture source color]
+    GL_MODULATE
+    GL_DECAL
+    GL_BLEND
+    GL_REPLACE
+    GL_COMBINE           // the texture function depends on the values of GL_COMBINE_RGB and GL_COMBINE_ALPHA
+GL_COMBINE_RGB
+    GL_REPLACE
+    GL_MODULATE
+    GL_ADD
+    GL_ADD_SIGNED
+    GL_INTERPOLATE
+    GL_SUBTRACT
+    GL_DOT3_RGB
+    GL_DOT3_RGBA
+GL_COMBINE_ALPHA
+    GL_REPLACE
+    GL_MODULATE
+    GL_ADD
+    GL_ADD_SIGNED
+    GL_INTERPOLATE
+    GL_SUBTRACT
+GL_RGB_SCALE             // The RGB and ALPHA results of the texture function are then multiplied
+GL_ALPHA_SCALE           // by the values of GL_RGB_SCALE and GL_ALPHA_SCALE. The results are clamped to [0, 1].
+
+GL_SRCn_RGB              // The arguments are determined the texture source data
+    GL_TEXTURE
+    GL_TEXTUREn
+    GL_CONSTANT          // GL_CONSTANT refers to the call we make with glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, mycolor)
+    GL_PRIMARY_COLOR     // source from the vertex color
+    GL_PREVIOUS
+GL_SRCn_ALPHA
+    GL_TEXTURE
+    GL_TEXTUREn
+    GL_CONSTANT
+    GL_PRIMARY_COLOR
+    GL_PREVIOUS
+GL_OPERANDn_RGB
+    GL_SRC_COLOR
+    GL_ONE_MINUS_SRC_COLOR
+    GL_SRC_ALPHA
+    GL_ONE_MINUS_SRC_ALPHA
+GL_OPERANDn_ALPHA
+    GL_SRC_ALPHA
+    GL_ONE_MINUS_SRC_ALPHA
+GL_TEXTURE_ENV_COLOR
+    ptr to 4 floating-point values in the range [0, 1]   // glTexEnvfv
+
