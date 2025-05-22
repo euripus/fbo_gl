@@ -38,7 +38,7 @@ glm::mat4 TextureProjector::getTransformMatrix() const
     if(is_reflection)
         reflect = reflection;
 
-    return bias_matrix * getProjectionMatrix() * reflect * getModelviewMatrix();
+    return bias_matrix * getProjectionMatrix() * getModelviewMatrix() * reflect;
 }
 
 glm::mat4 TextureProjector::getProjectionMatrix() const

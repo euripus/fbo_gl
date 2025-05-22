@@ -345,7 +345,7 @@ void Window::run()
 
             m_render_ptr->setMatrix(RendererBase::MatrixType::PROJECTION, m_camera_prj.getProjectionMatrix());
             m_render_ptr->setMatrix(RendererBase::MatrixType::MODELVIEW,
-                                    m_camera_prj.reflection * m_camera_prj.getModelviewMatrix());
+                                    m_camera_prj.getModelviewMatrix() * m_camera_prj.reflection);
 
             m_render_ptr->enableClipPlane(0, plane);
 
@@ -473,11 +473,6 @@ void Window::run()
         m_render_ptr->addTextureSlot(slot);
         slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
         slot.texture           = nullptr;
-        slot.projector         = &m_decal_prj;
-        slot.combine_mode.mode = CombineStage::CombineMode::ADD;
-        m_render_ptr->addTextureSlot(slot);
-        slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
-        slot.texture           = nullptr;
         slot.projector         = &m_camera_prj;
         slot.combine_mode.mode = CombineStage::CombineMode::BLEND;
         m_render_ptr->addTextureSlot(slot);
@@ -485,6 +480,11 @@ void Window::run()
         slot.texture           = nullptr;
         slot.projector         = &m_shadow_prj;
         slot.combine_mode.mode = CombineStage::CombineMode::MODULATE;
+        m_render_ptr->addTextureSlot(slot);
+        slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
+        slot.texture           = nullptr;
+        slot.projector         = &m_decal_prj;
+        slot.combine_mode.mode = CombineStage::CombineMode::ADD;
         m_render_ptr->addTextureSlot(slot);
 
         m_render_ptr->bindSlots();

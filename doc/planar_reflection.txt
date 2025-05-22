@@ -26,9 +26,9 @@ Planar mirror:
 - send tex_gen matrix (set 4 rows from tex_gen matrix)
 
 RM
-RM * MW
-PRJ * RM * MV
-TG = Bias * PRJ * RM * MV
+MW  * RM
+PRJ * MV * RM
+TG = Bias * PRJ * MV * RM
 
 Reflection matrix generation:
 plane = [vec3 norm(), float d]
