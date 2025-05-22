@@ -14,10 +14,8 @@ constexpr char const * base_tex_fname    = "color.tga";
 constexpr char const * decal_tex_fname   = "decal.tga";
 }   // namespace
 
-Window::Window(int width, int height, char const * title)
-    : m_size{width, height},
-      m_title{title},
-      m_pyramid{VertexBuffer::pos_norm_tex, 2}
+Window::Window(int width, int height, char const * title) :
+    m_size{width, height}, m_title{title}, m_pyramid{VertexBuffer::pos_norm_tex, 2}
 {
     // Initialise GLFW
     if(!glfwInit())
@@ -347,6 +345,12 @@ void Window::run()
             m_render_ptr->setMatrix(RendererBase::MatrixType::MODELVIEW,
                                     m_camera_prj.getModelviewMatrix() * m_camera_prj.reflection);
 
+            auto      old_cull = m_render_ptr->getCullState();
+            CullState cull;
+            cull.ccw_order = false;
+            cull.enabled   = true;
+            m_render_ptr->setCullState(cull);
+
             m_render_ptr->enableClipPlane(0, plane);
 
             m_render_ptr->bindLights();
@@ -412,7 +416,11 @@ void Window::run()
 
             m_render_ptr->unbindLights();
 
+            AABB test_box({-1.f, -1.f, -1.f}, {1.f, 1.f, 1.f});
+            m_render_ptr->drawBBox(test_box, glm::mat4(1.f), {1.0f, 0.0f, 0.0f});
+
             m_render_ptr->disableClipPlane(0);
+            m_render_ptr->setCullState(old_cull);
 
             m_render_ptr->setIdentityMatrix(RendererBase::MatrixType::MODELVIEW);
             m_render_ptr->setIdentityMatrix(RendererBase::MatrixType::PROJECTION);

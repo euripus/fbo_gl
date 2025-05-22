@@ -224,7 +224,7 @@ bool RendererBase::checkExtensions() const
     {
         return false;
     }
-	else if(!GLEW_ARB_texture_env_combine)
+    else if(!GLEW_ARB_texture_env_combine)
     {
         return false;
     }
