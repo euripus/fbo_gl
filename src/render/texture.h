@@ -190,17 +190,23 @@ struct CombineStage
     int32_t          alpha_scale         = 0;
     SrcType          rgb_src0            = SrcType::PREVIOUS;
     uint32_t         rgb_stage0          = 0;
-    SrcType          rgb_src1            = SrcType::TEXTURE;
+    SrcType          rgb_src1            = SrcType::PREVIOUS;
     uint32_t         rgb_stage1          = 0;
+	SrcType          rgb_src2            = SrcType::PREVIOUS;
+    uint32_t         rgb_stage2          = 0;
     SrcType          alpha_src0          = SrcType::PREVIOUS;
     uint32_t         alpha_stage0        = 0;
-    SrcType          alpha_src1          = SrcType::TEXTURE;
+    SrcType          alpha_src1          = SrcType::PREVIOUS;
     uint32_t         alpha_stage1        = 0;
+	SrcType          alpha_src2          = SrcType::PREVIOUS;
+    uint32_t         alpha_stage2        = 0;
     glm::vec4        constant_color      = glm::vec4(0.f);
     OperandType      rgb_operand0        = OperandType::SRC_COLOR;
     OperandType      rgb_operand1        = OperandType::SRC_COLOR;
+	OperandType      rgb_operand2        = OperandType::SRC_COLOR;
     OperandType      alpha_operand0      = OperandType::SRC_ALPHA;
     OperandType      alpha_operand1      = OperandType::SRC_ALPHA;
+	OperandType      alpha_operand2      = OperandType::SRC_ALPHA;
     bool             const_color_enabled = false;
 };
 

@@ -613,16 +613,22 @@ void RendererBase::applyCombineStage(CombineStage const & combine) const
 
         int32_t const rgb_src0   = getSrcType(combine.rgb_src0, combine.rgb_stage0);
         int32_t const rgb_src1   = getSrcType(combine.rgb_src1, combine.rgb_stage1);
+		int32_t const rgb_src2   = getSrcType(combine.rgb_src2, combine.rgb_stage2);
         int32_t const alpha_src0 = getSrcType(combine.alpha_src0, combine.alpha_stage0);
         int32_t const alpha_src1 = getSrcType(combine.alpha_src1, combine.alpha_stage1);
+		int32_t const alpha_src2 = getSrcType(combine.alpha_src2, combine.alpha_stage2);
 
         int32_t const operand_rgb0 =
             static_cast<int32_t>(g_texture_gl_operand_types[static_cast<uint32_t>(combine.rgb_operand0)]);
         int32_t const operand_rgb1 =
             static_cast<int32_t>(g_texture_gl_operand_types[static_cast<uint32_t>(combine.rgb_operand1)]);
+		int32_t const operand_rgb2 =
+            static_cast<int32_t>(g_texture_gl_operand_types[static_cast<uint32_t>(combine.rgb_operand1)]);
         int32_t const operand_alpha0 =
             static_cast<int32_t>(g_texture_gl_operand_types[static_cast<uint32_t>(combine.alpha_operand0)]);
         int32_t const operand_alpha1 =
+            static_cast<int32_t>(g_texture_gl_operand_types[static_cast<uint32_t>(combine.alpha_operand1)]);
+		int32_t const operand_alpha2 =
             static_cast<int32_t>(g_texture_gl_operand_types[static_cast<uint32_t>(combine.alpha_operand1)]);
 
         glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, combine_func);
@@ -630,14 +636,18 @@ void RendererBase::applyCombineStage(CombineStage const & combine) const
         glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, combine_rgb);
         glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, rgb_src0);
         glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, rgb_src1);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, rgb_src2);
         glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, operand_rgb0);
         glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, operand_rgb1);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, operand_rgb2);
         // Sample ALPHA
         glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, combine_alpha);
         glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, alpha_src0);
         glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA, alpha_src1);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA, alpha_src2);
         glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, operand_alpha0);
         glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, operand_alpha1);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, operand_alpha2);
 
         if(combine.rgb_scale != 0)
         {
