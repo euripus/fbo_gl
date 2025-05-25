@@ -337,7 +337,7 @@ void Window::run()
             auto plane              = TextureProjector::GetPlaneFromPoints(v0, v1, v2);
             m_camera_prj.reflection = TextureProjector::GetReflectionMatrix(plane);
 
-            m_render_ptr->setClearColor(glm::vec4(0.0f, 0.0f, 0.4f, 0.5f));
+            m_render_ptr->setClearColor(glm::vec4(0.0f, 0.0f, 0.4f, 0.1f));
             m_render_ptr->clearColorBuffer();
             m_render_ptr->clearDepthBuffer();
 
@@ -479,27 +479,27 @@ void Window::run()
         slot.projector         = nullptr;
         slot.combine_mode.mode = CombineStage::CombineMode::REPLACE;
         m_render_ptr->addTextureSlot(slot);
-		
-		CombineStage blend_combine;
-		blend_combine.mode = CombineStage::CombineMode::COMBINE;
-		blend_combine.rgb_func = CombineStage::CombineFunctions::INTERPOLATE;
-		blend_combine.alpha_func = CombineStage::CombineFunctions::INTERPOLATE;
-		blend_combine.rgb_src0            = SrcType::PREVIOUS;
-		blend_combine.rgb_src1            = SrcType::TEXTURE;
-		blend_combine.rgb_src2            = SrcType::TEXTURE;
-		blend_combine.alpha_src0          = SrcType::PREVIOUS;
-		blend_combine.alpha_src1          = SrcType::TEXTURE;
-		blend_combine.alpha_src2          = SrcType::TEXTURE;
-		blend_combine.rgb_operand0        = OperandType::SRC_COLOR;
-		blend_combine.rgb_operand1        = OperandType::SRC_COLOR;
-		blend_combine.rgb_operand2        = OperandType::SRC_ALPHA;
-		blend_combine.alpha_operand0      = OperandType::SRC_ALPHA;
-		blend_combine.alpha_operand1      = OperandType::SRC_ALPHA;
-		blend_combine.alpha_operand2      = OperandType::SRC_ALPHA;
-        slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
-        slot.texture           = nullptr;
-        slot.projector         = &m_camera_prj;
-        slot.combine_mode = blend_combine;
+
+        CombineStage blend_combine;
+        blend_combine.mode           = CombineStage::CombineMode::COMBINE;
+        blend_combine.rgb_func       = CombineStage::CombineFunctions::INTERPOLATE;
+        blend_combine.alpha_func     = CombineStage::CombineFunctions::INTERPOLATE;
+        blend_combine.rgb_src0       = CombineStage::SrcType::PREVIOUS;
+        blend_combine.rgb_src1       = CombineStage::SrcType::TEXTURE;
+        blend_combine.rgb_src2       = CombineStage::SrcType::TEXTURE;
+        blend_combine.alpha_src0     = CombineStage::SrcType::PREVIOUS;
+        blend_combine.alpha_src1     = CombineStage::SrcType::TEXTURE;
+        blend_combine.alpha_src2     = CombineStage::SrcType::PREVIOUS;
+        blend_combine.rgb_operand0   = CombineStage::OperandType::SRC_COLOR;
+        blend_combine.rgb_operand1   = CombineStage::OperandType::SRC_COLOR;
+        blend_combine.rgb_operand2   = CombineStage::OperandType::SRC_ALPHA;
+        blend_combine.alpha_operand0 = CombineStage::OperandType::SRC_ALPHA;
+        blend_combine.alpha_operand1 = CombineStage::OperandType::SRC_ALPHA;
+        blend_combine.alpha_operand2 = CombineStage::OperandType::SRC_ALPHA;
+        slot.coord_source            = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
+        slot.texture                 = nullptr;
+        slot.projector               = &m_camera_prj;
+        slot.combine_mode            = blend_combine;
         m_render_ptr->addTextureSlot(slot);
         slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
         slot.texture           = nullptr;
