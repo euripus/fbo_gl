@@ -12,10 +12,13 @@ namespace
 constexpr char const * diffuse_tex_fname = "uv.tga";
 constexpr char const * base_tex_fname    = "color.tga";
 constexpr char const * decal_tex_fname   = "decal.tga";
+constexpr char const * marble_tex_fname  = "marble.tga";
 }   // namespace
 
-Window::Window(int width, int height, char const * title) :
-    m_size{width, height}, m_title{title}, m_pyramid{VertexBuffer::pos_norm_tex, 2}
+Window::Window(int width, int height, char const * title)
+    : m_size{width, height},
+      m_title{title},
+      m_pyramid{VertexBuffer::pos_norm_tex, 2}
 {
     // Initialise GLFW
     if(!glfwInit())
@@ -62,6 +65,16 @@ Window::Window(int width, int height, char const * title) :
     m_second_texture.m_sampler.r   = Texture::Wrap::REPEAT;
     m_second_texture.m_sampler.s   = Texture::Wrap::REPEAT;
     m_second_texture.m_sampler.t   = Texture::Wrap::REPEAT;
+
+    m_marble_texture.m_type        = Texture::Type::TEXTURE_2D;
+    m_marble_texture.m_format      = Texture::Format::R8G8B8A8;
+    m_marble_texture.m_width       = 1024;
+    m_marble_texture.m_height      = 1024;
+    m_marble_texture.m_sampler.max = Texture::Filter::LINEAR;
+    m_marble_texture.m_sampler.min = Texture::Filter::LINEAR_MIPMAP_LINEAR;
+    m_marble_texture.m_sampler.r   = Texture::Wrap::REPEAT;
+    m_marble_texture.m_sampler.s   = Texture::Wrap::REPEAT;
+    m_marble_texture.m_sampler.t   = Texture::Wrap::REPEAT;
 
     m_decal_texture.m_type        = Texture::Type::TEXTURE_2D;
     m_decal_texture.m_format      = Texture::Format::R8G8B8A8;
@@ -130,6 +143,7 @@ Window::~Window()
         m_render_ptr->destroyTexture(m_render_texture);
         m_render_ptr->destroyTexture(m_base_texture);
         m_render_ptr->destroyTexture(m_second_texture);
+        m_render_ptr->destroyTexture(m_marble_texture);
         m_render_ptr->destroyTexture(m_decal_texture);
         m_render_ptr->destroyTexture(m_shadow_texture);
         m_render_ptr->destroyTexture(m_reflection_texture);
@@ -239,6 +253,12 @@ void Window::initScene()
     m_render_ptr->createTexture(m_decal_texture);
     m_render_ptr->uploadTextureData(m_decal_texture);
     m_render_ptr->applySamplerState(m_decal_texture);
+
+    if(!m_marble_texture.loadImageDataFromFile(marble_tex_fname))
+        throw std::runtime_error("Texture not found");
+    m_render_ptr->createTexture(m_marble_texture);
+    m_render_ptr->uploadTextureData(m_marble_texture);
+    m_render_ptr->applySamplerState(m_marble_texture);
 }
 
 void Window::run()
@@ -337,7 +357,7 @@ void Window::run()
             auto plane              = TextureProjector::GetPlaneFromPoints(v0, v1, v2);
             m_camera_prj.reflection = TextureProjector::GetReflectionMatrix(plane);
 
-            m_render_ptr->setClearColor(glm::vec4(0.0f, 0.0f, 0.4f, 0.1f));
+            m_render_ptr->setClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 0.1f));
             m_render_ptr->clearColorBuffer();
             m_render_ptr->clearDepthBuffer();
 
@@ -380,7 +400,7 @@ void Window::run()
 
             slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_BUFFER;
             slot.tex_channel_num   = 0;
-            slot.texture           = &m_base_texture;
+            slot.texture           = &m_marble_texture;
             slot.projector         = nullptr;
             slot.combine_mode.mode = CombineStage::CombineMode::REPLACE;
             m_render_ptr->addTextureSlot(slot);
@@ -475,7 +495,7 @@ void Window::run()
 
         slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_BUFFER;
         slot.tex_channel_num   = 0;
-        slot.texture           = &m_base_texture;
+        slot.texture           = &m_marble_texture;
         slot.projector         = nullptr;
         slot.combine_mode.mode = CombineStage::CombineMode::REPLACE;
         m_render_ptr->addTextureSlot(slot);
@@ -489,7 +509,7 @@ void Window::run()
         blend_combine.rgb_src2       = CombineStage::SrcType::TEXTURE;
         blend_combine.alpha_src0     = CombineStage::SrcType::PREVIOUS;
         blend_combine.alpha_src1     = CombineStage::SrcType::TEXTURE;
-        blend_combine.alpha_src2     = CombineStage::SrcType::PREVIOUS;
+        blend_combine.alpha_src2     = CombineStage::SrcType::TEXTURE;
         blend_combine.rgb_operand0   = CombineStage::OperandType::SRC_COLOR;
         blend_combine.rgb_operand1   = CombineStage::OperandType::SRC_COLOR;
         blend_combine.rgb_operand2   = CombineStage::OperandType::SRC_ALPHA;
@@ -501,6 +521,7 @@ void Window::run()
         slot.projector               = &m_camera_prj;
         slot.combine_mode            = blend_combine;
         m_render_ptr->addTextureSlot(slot);
+
         slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
         slot.texture           = nullptr;
         slot.projector         = &m_shadow_prj;

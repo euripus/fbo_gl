@@ -35,6 +35,7 @@ class Window
     Texture          m_base_texture;
     Texture          m_second_texture;
     Texture          m_decal_texture;
+    Texture          m_marble_texture;
     Texture          m_shadow_texture;
     Texture          m_reflection_texture;
     Light            m_light;
