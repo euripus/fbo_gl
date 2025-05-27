@@ -1,7 +1,7 @@
 #include "texture.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-bool Texture::loadImageDataFromFile(std::string const & fname)
+bool Texture::loadImageDataFromFile(std::string const & fname, RendererBase const & render)
 {
     tex::ImageData image;
     if(!tex::ReadTGA(fname, image))
@@ -13,10 +13,13 @@ bool Texture::loadImageDataFromFile(std::string const & fname)
     m_format   = image.type == tex::ImageData::PixelType::pt_rgb ? Format::R8G8B8 : Format::R8G8B8A8;
     m_width    = image.width;
     m_height   = image.height;
-    m_data.push_back(std::move(image));
-
+	m_depth = 0;
     m_sampler.max = Filter::LINEAR;
     m_sampler.min = Filter::LINEAR_MIPMAP_LINEAR;
+
+	render.createTexture(*this);
+	render.uploadTextureData(*this, image);
+	render.applySamplerState(*this);
 
     return true;
 }

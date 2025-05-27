@@ -236,29 +236,17 @@ void Window::initScene()
     m_render_ptr->uploadBuffer(m_sphere);
 
     // create textures
-    if(!m_second_texture.loadImageDataFromFile(diffuse_tex_fname))
+    if(!m_second_texture.loadImageDataFromFile(diffuse_tex_fname, *m_render_ptr))
         throw std::runtime_error("Texture not found");
-    m_render_ptr->createTexture(m_second_texture);
-    m_render_ptr->uploadTextureData(m_second_texture);
-    m_render_ptr->applySamplerState(m_second_texture);
 
-    if(!m_base_texture.loadImageDataFromFile(base_tex_fname))
+    if(!m_base_texture.loadImageDataFromFile(base_tex_fname, *m_render_ptr))
         throw std::runtime_error("Texture not found");
-    m_render_ptr->createTexture(m_base_texture);
-    m_render_ptr->uploadTextureData(m_base_texture);
-    m_render_ptr->applySamplerState(m_base_texture);
 
-    if(!m_decal_texture.loadImageDataFromFile(decal_tex_fname))
+    if(!m_decal_texture.loadImageDataFromFile(decal_tex_fname, *m_render_ptr))
         throw std::runtime_error("Texture not found");
-    m_render_ptr->createTexture(m_decal_texture);
-    m_render_ptr->uploadTextureData(m_decal_texture);
-    m_render_ptr->applySamplerState(m_decal_texture);
 
-    if(!m_marble_texture.loadImageDataFromFile(marble_tex_fname))
+    if(!m_marble_texture.loadImageDataFromFile(marble_tex_fname, *m_render_ptr))
         throw std::runtime_error("Texture not found");
-    m_render_ptr->createTexture(m_marble_texture);
-    m_render_ptr->uploadTextureData(m_marble_texture);
-    m_render_ptr->applySamplerState(m_marble_texture);
 }
 
 void Window::run()

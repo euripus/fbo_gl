@@ -453,14 +453,14 @@ void RendererBase::createTexture(Texture & tex) const
     glBindTexture(tex_type, 0);
 }
 
-void RendererBase::uploadTextureData(Texture & tex, uint32_t cube_map_slice, uint32_t mip_level) const
+void RendererBase::uploadTextureData(Texture & tex, tex::ImageData const & tex_data, uint32_t cube_map_slice = 0, uint32_t mip_level = 0) const
 {
     assert(tex.m_render_id != 0 && tex.m_type != Texture::Type::TEXTURE_NOTYPE);
-    assert(tex.m_data[0].data.get() != nullptr && cube_map_slice < 6);
+    assert(tex_data.data.get() != nullptr && cube_map_slice < 6);
 
     uint32_t const  tex_type  = g_texture_gl_types[static_cast<uint32_t>(tex.m_type)];
-    uint8_t const * data      = tex.m_data[0 + cube_map_slice].data.get();
-    GLsizei const   data_size = static_cast<GLsizei>(tex.m_data[0 + cube_map_slice].data_size);
+    uint8_t const * data      = tex_data.data.get();
+    GLsizei const   data_size = static_cast<GLsizei>(tex_data.data_size);
 
     glBindTexture(tex_type, tex.m_render_id);
 
@@ -526,8 +526,8 @@ void RendererBase::updateTextureData(Texture & tex, uint32_t cube_map_slice, uin
     uploadTextureData(tex, cube_map_slice, mip_level);
 }
 
-bool RendererBase::getTextureData(Texture const & tex, void * buffer, uint32_t cube_map_slice,
-                                  uint32_t mip_level) const
+bool RendererBase::getTextureData(Texture const & tex, tex::ImageData & tex_data, uint32_t cube_map_slice = 0,
+                                 uint32_t mip_level = 0) const
 {
     assert(tex.m_render_id != 0
            && (tex.m_type == Texture::Type::TEXTURE_2D || tex.m_type == Texture::Type::TEXTURE_CUBE));

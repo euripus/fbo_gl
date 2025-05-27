@@ -41,10 +41,10 @@ public:
 
     // Textures
     void          createTexture(Texture & tex) const;
-    void          uploadTextureData(Texture & tex, uint32_t cube_map_slice = 0, uint32_t mip_level = 0) const;
+    void          uploadTextureData(Texture & tex, tex::ImageData const & tex_data, uint32_t cube_map_slice =                                 0, uint32_t mip_level = 0) const;
     void          destroyTexture(Texture & tex) const;
     void          updateTextureData(Texture & tex, uint32_t cube_map_slice = 0, uint32_t mip_level = 0) const;
-    bool          getTextureData(Texture const & tex, void * buffer, uint32_t cube_map_slice = 0,
+    bool          getTextureData(Texture const & tex, tex::ImageData & tex_data, uint32_t cube_map_slice = 0,
                                  uint32_t mip_level = 0) const;
     void          applySamplerState(Texture const & tex) const;
     void          applyCombineStage(CombineStage const & combine) const;

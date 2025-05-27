@@ -75,7 +75,7 @@ public:
         bool      compare_mode   = false;
     };
 
-    bool loadImageDataFromFile(std::string const & fname);
+    bool loadImageDataFromFile(std::string const & fname, RendererBase const & render);
 
     // protected:
     bool         m_comitted = false;
@@ -88,8 +88,6 @@ public:
     uint32_t     m_depth    = 0;
 
     uint32_t m_render_id = 0;
-
-    std::vector<tex::ImageData> m_data;   // 0 - default, 6 - max
 
     friend class RendererBase;
 };
