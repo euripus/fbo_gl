@@ -1,4 +1,6 @@
 #include "texture.h"
+#include "renderer.h"
+#include "../res/imagedata.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 bool Texture::loadImageDataFromFile(std::string const & fname, RendererBase const & render)
@@ -7,19 +9,19 @@ bool Texture::loadImageDataFromFile(std::string const & fname, RendererBase cons
     if(!tex::ReadTGA(fname, image))
         return false;
 
-    m_comitted = false;
-    m_gen_mips = true;
-    m_type     = Type::TEXTURE_2D;
-    m_format   = image.type == tex::ImageData::PixelType::pt_rgb ? Format::R8G8B8 : Format::R8G8B8A8;
-    m_width    = image.width;
-    m_height   = image.height;
-	m_depth = 0;
+    m_comitted    = false;
+    m_gen_mips    = true;
+    m_type        = Type::TEXTURE_2D;
+    m_format      = image.type == tex::ImageData::PixelType::pt_rgb ? Format::R8G8B8 : Format::R8G8B8A8;
+    m_width       = image.width;
+    m_height      = image.height;
+    m_depth       = 0;
     m_sampler.max = Filter::LINEAR;
     m_sampler.min = Filter::LINEAR_MIPMAP_LINEAR;
 
-	render.createTexture(*this);
-	render.uploadTextureData(*this, image);
-	render.applySamplerState(*this);
+    render.createTexture(*this);
+    render.uploadTextureData(*this, image);
+    render.applySamplerState(*this);
 
     return true;
 }

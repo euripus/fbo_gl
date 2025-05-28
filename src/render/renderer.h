@@ -5,6 +5,7 @@
 #include "render_states.h"
 #include "vertex_buffer.h"
 #include "texture.h"
+#include "../res/imagedata.h"
 
 // simple openGL 1.5 renderer
 
@@ -40,15 +41,15 @@ public:
                      uint32_t num_verts) const;
 
     // Textures
-    void          createTexture(Texture & tex) const;
-    void          uploadTextureData(Texture & tex, tex::ImageData const & tex_data, uint32_t cube_map_slice =                                 0, uint32_t mip_level = 0) const;
-    void          destroyTexture(Texture & tex) const;
-    void          updateTextureData(Texture & tex, uint32_t cube_map_slice = 0, uint32_t mip_level = 0) const;
-    bool          getTextureData(Texture const & tex, tex::ImageData & tex_data, uint32_t cube_map_slice = 0,
-                                 uint32_t mip_level = 0) const;
-    void          applySamplerState(Texture const & tex) const;
-    void          applyCombineStage(CombineStage const & combine) const;
-    uint32_t      addTextureSlot(TextureSlot slot);
+    void     createTexture(Texture & tex) const;
+    void     uploadTextureData(Texture & tex, tex::ImageData const & tex_data, uint32_t cube_map_slice = 0,
+                               uint32_t mip_level = 0) const;
+    void     destroyTexture(Texture & tex) const;
+    bool     getTextureData(Texture const & tex, tex::ImageData & tex_data, uint32_t cube_map_slice = 0,
+                            uint32_t mip_level = 0) const;
+    void     applySamplerState(Texture const & tex) const;
+    void     applyCombineStage(CombineStage const & combine) const;
+    uint32_t addTextureSlot(TextureSlot slot);
     TextureSlot & getTextureSlot(uint32_t slot_num);
     void          bindSlots() const;
     void          unbindSlots() const;
@@ -164,7 +165,9 @@ private:
 
 struct VertexBufferRenewer
 {
-    VertexBufferRenewer(RendererBase & render, VertexBuffer & vb) : m_render(render), m_vb(vb)
+    VertexBufferRenewer(RendererBase & render, VertexBuffer & vb)
+        : m_render(render),
+          m_vb(vb)
     {
         m_render.uploadBuffer(m_vb);
     }

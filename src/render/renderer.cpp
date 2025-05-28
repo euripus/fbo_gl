@@ -453,7 +453,8 @@ void RendererBase::createTexture(Texture & tex) const
     glBindTexture(tex_type, 0);
 }
 
-void RendererBase::uploadTextureData(Texture & tex, tex::ImageData const & tex_data, uint32_t cube_map_slice = 0, uint32_t mip_level = 0) const
+void RendererBase::uploadTextureData(Texture & tex, tex::ImageData const & tex_data, uint32_t cube_map_slice,
+                                     uint32_t mip_level) const
 {
     assert(tex.m_render_id != 0 && tex.m_type != Texture::Type::TEXTURE_NOTYPE);
     assert(tex_data.data.get() != nullptr && cube_map_slice < 6);
@@ -521,15 +522,10 @@ void RendererBase::destroyTexture(Texture & tex) const
     tex.m_comitted  = false;
 }
 
-void RendererBase::updateTextureData(Texture & tex, uint32_t cube_map_slice, uint32_t mip_level) const
+bool RendererBase::getTextureData(Texture const & tex, tex::ImageData & tex_data, uint32_t cube_map_slice,
+                                  uint32_t mip_level) const
 {
-    uploadTextureData(tex, cube_map_slice, mip_level);
-}
-
-bool RendererBase::getTextureData(Texture const & tex, tex::ImageData & tex_data, uint32_t cube_map_slice = 0,
-                                 uint32_t mip_level = 0) const
-{
-    assert(tex.m_render_id != 0
+    /*assert(tex.m_render_id != 0
            && (tex.m_type == Texture::Type::TEXTURE_2D || tex.m_type == Texture::Type::TEXTURE_CUBE));
 
     uint32_t target = tex.m_type == Texture::Type::TEXTURE_CUBE ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
@@ -552,7 +548,7 @@ bool RendererBase::getTextureData(Texture const & tex, tex::ImageData & tex_data
     else
         glGetTexImage(target, static_cast<int32_t>(mip_level), fmt, type, buffer);
 
-    glBindTexture(bind_type, 0);
+    glBindTexture(bind_type, 0);*/
     return true;
 }
 
@@ -600,7 +596,7 @@ void RendererBase::applyCombineStage(CombineStage const & combine) const
             uint32_t src = 0;
             if(src_type == CombineStage::SrcType::TEXTURE_STAGE)
             {
-                src = g_texture_gl_src_types[static_cast<uint32_t>(src_type)];
+                src  = g_texture_gl_src_types[static_cast<uint32_t>(src_type)];
                 src += num_stage;
             }
             else

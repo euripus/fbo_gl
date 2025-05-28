@@ -15,10 +15,8 @@ constexpr char const * decal_tex_fname   = "decal.tga";
 constexpr char const * marble_tex_fname  = "marble.tga";
 }   // namespace
 
-Window::Window(int width, int height, char const * title)
-    : m_size{width, height},
-      m_title{title},
-      m_pyramid{VertexBuffer::pos_norm_tex, 2}
+Window::Window(int width, int height, char const * title) :
+    m_size{width, height}, m_title{title}, m_pyramid{VertexBuffer::pos_norm_tex, 2}
 {
     // Initialise GLFW
     if(!glfwInit())

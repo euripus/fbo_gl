@@ -1,11 +1,10 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "../res/imagedata.h"
 #include <glm/glm.hpp>
-#include <vector>
-// #include <bitset>
+#include <string>
 
+class RendererBase;
 class Texture
 {
 public:
