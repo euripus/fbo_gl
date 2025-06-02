@@ -45,8 +45,7 @@ public:
     void     uploadTextureData(Texture & tex, tex::ImageData const & tex_data, uint32_t cube_map_slice = 0,
                                uint32_t mip_level = 0) const;
     void     destroyTexture(Texture & tex) const;
-    bool     getTextureData(Texture const & tex, tex::ImageData & tex_data, uint32_t cube_map_slice = 0,
-                            uint32_t mip_level = 0) const;
+    bool     get2DTextureData(Texture const & tex, tex::ImageData & tex_data, uint32_t cube_map_slice = 0) const;
     void     applySamplerState(Texture const & tex) const;
     void     applyCombineStage(CombineStage const & combine) const;
     uint32_t addTextureSlot(TextureSlot slot);
