@@ -522,16 +522,17 @@ void RendererBase::destroyTexture(Texture & tex) const
     tex.m_comitted  = false;
 }
 
-bool RendererBase::get2DTextureData(Texture const & tex, tex::ImageData & tex_data, uint32_t cube_map_slice) const
+bool RendererBase::get2DTextureData(Texture const & tex, tex::ImageData & tex_data,
+                                    uint32_t cube_map_slice) const
 {
     assert(tex.m_render_id != 0
            && (tex.m_type == Texture::Type::TEXTURE_2D || tex.m_type == Texture::Type::TEXTURE_CUBE));
-		   
+
     uint32_t target = tex.m_type == Texture::Type::TEXTURE_CUBE ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
     if(target == GL_TEXTURE_CUBE_MAP)
         target = GL_TEXTURE_CUBE_MAP_POSITIVE_X + cube_map_slice;
 
-	if(static_cast<uint32_t>(tex.m_format) > g_texture_gl_formats.size())
+    if(static_cast<uint32_t>(tex.m_format) > g_texture_gl_formats.size())
         return false;
 
     uint32_t const fmt  = g_texture_gl_formats[static_cast<uint32_t>(tex.m_format)].gl_input_format;
@@ -540,51 +541,51 @@ bool RendererBase::get2DTextureData(Texture const & tex, tex::ImageData & tex_da
     uint32_t const bind_type = g_texture_gl_types[static_cast<uint32_t>(tex.m_type)];
     glBindTexture(bind_type, tex.m_render_id);
 
-	GLint result = 0;
-	glGetTexLevelParameteriv(target, 0, GL_TEXTURE_COMPRESSED, &result);
+    GLint result = 0;
+    glGetTexLevelParameteriv(target, 0, GL_TEXTURE_COMPRESSED, &result);
     bool const compressed = result == GL_TRUE;
 
-	uint32_t data_size = 0;
-	ImageData::PixelType px_type = PixelType::pt_none;
-	if(compressed)
-	{
-		glGetTexLevelParameteriv(target, 0, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &result);
-		data_size = result;
-		px_type = PixelType::pt_compressed;
-	}
-	else
-	{
-		uint32_t bytes_per_pixel = 0;
-		switch(tex.m_format)
-		{
-			case Texture::Format::R8G8B8:
-			{
-				bytes_per_pixel = 3;
-				px_type = PixelType::pt_rgb;
-				break;
-			}
-			case Texture::Format::R8G8B8A8:
-			{
-				bytes_per_pixel = 4;
-				px_type = PixelType::pt_rgba;
-				break;
-			}
-			case Texture::Format::DEPTH:
-			{
-				bytes_per_pixel = 4;
-				px_type = PixelType::pt_float;
-				break;
-			}
-		}
+    uint32_t                  data_size = 0;
+    tex::ImageData::PixelType px_type   = tex::ImageData::PixelType::pt_none;
+    if(compressed)
+    {
+        glGetTexLevelParameteriv(target, 0, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &result);
+        data_size = static_cast<uint32_t>(result);
+        px_type   = tex::ImageData::PixelType::pt_compressed;
+    }
+    else
+    {
+        uint32_t bytes_per_pixel = 0;
+        switch(tex.m_format)
+        {
+            case Texture::Format::R8G8B8:
+            {
+                bytes_per_pixel = 3;
+                px_type         = tex::ImageData::PixelType::pt_rgb;
+                break;
+            }
+            case Texture::Format::R8G8B8A8:
+            {
+                bytes_per_pixel = 4;
+                px_type         = tex::ImageData::PixelType::pt_rgba;
+                break;
+            }
+            case Texture::Format::DEPTH:
+            {
+                bytes_per_pixel = 4;
+                px_type         = tex::ImageData::PixelType::pt_float;
+                break;
+            }
+        }
 
-		data_size = tex.m_width * tex.m_height * bytes_per_pixel;
-	}
+        data_size = tex.m_width * tex.m_height * bytes_per_pixel;
+    }
 
-	tex_data.width = tex.m_width;
-	tex_data.height = tex.m_height;
-	tex_data.data_size = data_size;
-	tex_data.type = px_type;
-	tex_data.data = std::make_unique<uint8_t[]>(tex_data.data_size);
+    tex_data.width     = tex.m_width;
+    tex_data.height    = tex.m_height;
+    tex_data.data_size = data_size;
+    tex_data.type      = px_type;
+    tex_data.data      = std::make_unique<uint8_t[]>(tex_data.data_size);
 
     if(compressed)
         glGetCompressedTexImage(target, 0, tex_data.data.get());

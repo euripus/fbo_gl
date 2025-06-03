@@ -14,8 +14,8 @@ struct ImageData
     {
         pt_rgb,
         pt_rgba,
-		pt_compressed,
-		pt_float,
+        pt_compressed,
+        pt_float,
         pt_none
     };
 
