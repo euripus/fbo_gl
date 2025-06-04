@@ -555,30 +555,10 @@ bool RendererBase::get2DTextureData(Texture const & tex, tex::ImageData & tex_da
     }
     else
     {
-        uint32_t bytes_per_pixel = 0;
-        switch(tex.m_format)
-        {
-            case Texture::Format::R8G8B8:
-            {
-                bytes_per_pixel = 3;
-                px_type         = tex::ImageData::PixelType::pt_rgb;
-                break;
-            }
-            case Texture::Format::R8G8B8A8:
-            {
-                bytes_per_pixel = 4;
-                px_type         = tex::ImageData::PixelType::pt_rgba;
-                break;
-            }
-            case Texture::Format::DEPTH:
-            {
-                bytes_per_pixel = 4;
-                px_type         = tex::ImageData::PixelType::pt_float;
-                break;
-            }
-        }
-
-        data_size = tex.m_width * tex.m_height * bytes_per_pixel;
+		// If texture image does not contain four components, the mappings are applied.
+		// https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetTexImage.xhtml
+        px_type         = tex::ImageData::PixelType::pt_rgba;
+        data_size = tex.m_width * tex.m_height * 4;
     }
 
     tex_data.width     = tex.m_width;

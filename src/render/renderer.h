@@ -34,7 +34,7 @@ public:
     void uploadBuffer(VertexBuffer & geo) const;
     void unloadBuffer(VertexBuffer const & geo) const;
     void deleteBuffer(VertexBuffer & geo) const;
-    void bindVertexBuffer(VertexBuffer const * geo) const;
+    void bindVertexBuffer(VertexBuffer const * geo) const; // must be called after bindSlots()
     void unbindVertexBuffer() const;   // must be called before clearSlots()
     void draw(VertexBuffer const & geo) const;
     void drawIndexed(uint32_t first_index, uint32_t num_indices, uint32_t first_vert,
