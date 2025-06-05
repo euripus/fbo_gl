@@ -249,7 +249,7 @@ void Window::initScene()
 
 void Window::run()
 {
-	bool once = true;
+    bool        once = true;
     glm::mat4   prj_mtx, mtx;
     TextureSlot slot;
 
@@ -435,15 +435,15 @@ void Window::run()
             m_render_ptr->bindDefaultFbo();
         }
 
-		if(once)
-		{
-			tex::ImageData image;
+        if(once)
+        {
+            tex::ImageData image;
 
-			m_render_ptr->get2DTextureData(&m_reflection_texture, image);
-			tex::WriteTGA("reflection.tga", image);
+            m_render_ptr->get2DTextureData(m_reflection_texture, image);
+            tex::WriteTGA("reflection.tga", image);
 
-			once = false;
-		}
+            once = false;
+        }
 
         //         Render scene:
         // bind lights

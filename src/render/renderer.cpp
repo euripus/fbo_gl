@@ -555,9 +555,9 @@ bool RendererBase::get2DTextureData(Texture const & tex, tex::ImageData & tex_da
     }
     else
     {
-		// If texture image does not contain four components, the mappings are applied.
-		// https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetTexImage.xhtml
-        px_type         = tex::ImageData::PixelType::pt_rgba;
+        // If texture image does not contain four components, the mappings are applied.
+        // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetTexImage.xhtml
+        px_type   = tex::ImageData::PixelType::pt_rgba;
         data_size = tex.m_width * tex.m_height * 4;
     }
 
@@ -620,7 +620,7 @@ void RendererBase::applyCombineStage(CombineStage const & combine) const
             uint32_t src = 0;
             if(src_type == CombineStage::SrcType::TEXTURE_STAGE)
             {
-                src  = g_texture_gl_src_types[static_cast<uint32_t>(src_type)];
+                src = g_texture_gl_src_types[static_cast<uint32_t>(src_type)];
                 src += num_stage;
             }
             else
