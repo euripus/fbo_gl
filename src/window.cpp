@@ -500,13 +500,13 @@ void Window::run()
         CombineStage blend_combine;
         blend_combine.mode           = CombineStage::CombineMode::COMBINE;
         blend_combine.rgb_func       = CombineStage::CombineFunctions::INTERPOLATE;
-        blend_combine.alpha_func     = CombineStage::CombineFunctions::INTERPOLATE;
+        blend_combine.alpha_func     = CombineStage::CombineFunctions::REPLACE;
         blend_combine.rgb_src0       = CombineStage::SrcType::PREVIOUS;
         blend_combine.rgb_src1       = CombineStage::SrcType::TEXTURE;
         blend_combine.rgb_src2       = CombineStage::SrcType::TEXTURE;
         blend_combine.alpha_src0     = CombineStage::SrcType::PREVIOUS;
-        blend_combine.alpha_src1     = CombineStage::SrcType::TEXTURE;
-        blend_combine.alpha_src2     = CombineStage::SrcType::TEXTURE;
+        blend_combine.alpha_src1     = CombineStage::SrcType::PREVIOUS;
+        blend_combine.alpha_src2     = CombineStage::SrcType::PREVIOUS;
         blend_combine.rgb_operand0   = CombineStage::OperandType::SRC_COLOR;
         blend_combine.rgb_operand1   = CombineStage::OperandType::SRC_COLOR;
         blend_combine.rgb_operand2   = CombineStage::OperandType::SRC_ALPHA;
