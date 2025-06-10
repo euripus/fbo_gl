@@ -38,12 +38,12 @@ class Window
     Texture          m_marble_texture;
     Texture          m_shadow_texture;
     Texture          m_reflection_texture;
-	Texture          m_cube_map;
+    Texture          m_cube_map_texture;
     TextureProjector m_decal_prj;
     TextureProjector m_shadow_prj;
     TextureProjector m_camera_prj;
-	TextureProjector m_cube_map_prj;
-	Light            m_light;
+    TextureProjector m_cube_map_prj;
+    Light            m_light;
 
 public:
     Window(int width, int height, char const * title);

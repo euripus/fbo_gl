@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <string>
+#include <array>
 
 class RendererBase;
 class Texture
@@ -75,7 +76,7 @@ public:
     };
 
     bool loadImageDataFromFile(std::string const & fname, RendererBase const & render);
-	bool loadCubeMapFromFiles(std::array<char const *, 6> const & fnames, RendererBase const & render);
+    bool loadCubeMapFromFiles(std::array<char const *, 6> const & fnames, RendererBase const & render);
 
     // protected:
     bool         m_comitted = false;
@@ -118,7 +119,7 @@ struct TextureProjector
     bool  is_ortho      = false;
     bool  is_mdv_matrix = false;
     bool  is_reflection = false;
-	bool  is_cube_map = false;
+    bool  is_cube_map   = false;
     float fovy          = 45.f;
 
     Texture const * projected_texture = nullptr;
@@ -217,14 +218,14 @@ struct TextureSlot
         TEX_COORD_BUFFER
     };
 
-	enum class CubeMapGenMode
-	{
-		NORMAL,
-		REFLECTION
-	};
+    enum class CubeMapGenMode
+    {
+        NORMAL,
+        REFLECTION
+    };
 
-    TexCoordSource coord_source = TexCoordSource::TEX_COORD_BUFFER;
-	CubeMapGenMode cube_map_mode = CubeMapGenMode::NORMAL;
+    TexCoordSource coord_source    = TexCoordSource::TEX_COORD_BUFFER;
+    CubeMapGenMode cube_map_mode   = CubeMapGenMode::NORMAL;
     std::uint32_t  tex_channel_num = 0;   // num of active channel in tex_coords pool
     CombineStage   combine_mode    = {};
 

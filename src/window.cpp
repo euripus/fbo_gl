@@ -9,15 +9,19 @@
 
 namespace
 {
-constexpr char const * diffuse_tex_fname = "uv.tga";
-constexpr char const * base_tex_fname    = "color.tga";
-constexpr char const * decal_tex_fname   = "decal.tga";
-constexpr char const * marble_tex_fname  = "marble.tga";
-constexpr std::array<char const *, 6> cube_map_names = {{"cm_left.tga", "cm_right.tga", "cm_top.tga", "cm_bottom.tga", 	"cm_back.tga", "cm_front.tga"}};
+constexpr char const *                diffuse_tex_fname = "uv.tga";
+constexpr char const *                base_tex_fname    = "color.tga";
+constexpr char const *                decal_tex_fname   = "decal.tga";
+constexpr char const *                marble_tex_fname  = "marble.tga";
+constexpr std::array<char const *, 6> cube_map_names    = {
+    {"cm_left.tga", "cm_right.tga", "cm_top.tga", "cm_bottom.tga", "cm_back.tga", "cm_front.tga"}
+};
 }   // namespace
 
-Window::Window(int width, int height, char const * title) :
-    m_size{width, height}, m_title{title}, m_pyramid{VertexBuffer::pos_norm_tex, 2}
+Window::Window(int width, int height, char const * title)
+    : m_size{width, height},
+      m_title{title},
+      m_pyramid{VertexBuffer::pos_norm_tex, 2}
 {
     // Initialise GLFW
     if(!glfwInit())
@@ -107,17 +111,17 @@ Window::Window(int width, int height, char const * title) :
     m_reflection_texture.m_sampler.r   = Texture::Wrap::CLAMP_TO_EDGE;
     m_reflection_texture.m_sampler.s   = Texture::Wrap::CLAMP_TO_EDGE;
     m_reflection_texture.m_sampler.t   = Texture::Wrap::CLAMP_TO_EDGE;
-	
-	m_cube_map_prj.m_type        = Texture::Type::TEXTURE_CUBE;
-    m_cube_map_prj.m_format      = Texture::Format::R8G8B8A8;
-    m_cube_map_prj.m_width       = 1024;
-    m_cube_map_prj.m_height      = 1024;
-    m_cube_map_prj.m_gen_mips    = false;
-    m_cube_map_prj.m_sampler.max = Texture::Filter::LINEAR;
-    m_cube_map_prj.m_sampler.min = Texture::Filter::LINEAR;
-    m_cube_map_prj.m_sampler.r   = Texture::Wrap::CLAMP_TO_EDGE;
-    m_cube_map_prj.m_sampler.s   = Texture::Wrap::CLAMP_TO_EDGE;
-    m_cube_map_prj.m_sampler.t   = Texture::Wrap::CLAMP_TO_EDGE;
+
+    m_cube_map_texture.m_type        = Texture::Type::TEXTURE_CUBE;
+    m_cube_map_texture.m_format      = Texture::Format::R8G8B8A8;
+    m_cube_map_texture.m_width       = 128;
+    m_cube_map_texture.m_height      = 128;
+    m_cube_map_texture.m_gen_mips    = false;
+    m_cube_map_texture.m_sampler.max = Texture::Filter::LINEAR;
+    m_cube_map_texture.m_sampler.min = Texture::Filter::LINEAR;
+    m_cube_map_texture.m_sampler.r   = Texture::Wrap::CLAMP_TO_EDGE;
+    m_cube_map_texture.m_sampler.s   = Texture::Wrap::CLAMP_TO_EDGE;
+    m_cube_map_texture.m_sampler.t   = Texture::Wrap::CLAMP_TO_EDGE;
 
     m_decal_prj.projected_texture = &m_decal_texture;
 
@@ -134,9 +138,9 @@ Window::Window(int width, int height, char const * title) :
     mtx           = glm::rotate(mtx, glm::radians(60.0f), {0.0f, 1.0f, 0.0f});
 
     m_camera_prj.modelview = mtx;
-	
-	m_cube_map_prj.projected_texture = &m_cube_map_prj;
-    m_camera_prj.is_cube_map     = true;
+
+    m_cube_map_prj.projected_texture = &m_cube_map_texture;
+    m_cube_map_prj.is_cube_map       = true;
 }
 
 Window::~Window()
@@ -160,7 +164,7 @@ Window::~Window()
         m_render_ptr->destroyTexture(m_decal_texture);
         m_render_ptr->destroyTexture(m_shadow_texture);
         m_render_ptr->destroyTexture(m_reflection_texture);
-		m_render_ptr->destroyTexture(m_cube_map);
+        m_render_ptr->destroyTexture(m_cube_map_texture);
 
         m_render_ptr->terminate();
     }
@@ -261,8 +265,8 @@ void Window::initScene()
 
     if(!m_marble_texture.loadImageDataFromFile(marble_tex_fname, *m_render_ptr))
         throw std::runtime_error("Texture not found");
-	
-	if(!m_cube_map.loadCubeMapFromFiles(cube_map_names, *m_render_ptr))
+
+    if(!m_cube_map_texture.loadCubeMapFromFiles(cube_map_names, *m_render_ptr))
         throw std::runtime_error("Texture not found");
 }
 
@@ -503,10 +507,10 @@ void Window::run()
         slot.projector         = &m_decal_prj;
         slot.combine_mode.mode = CombineStage::CombineMode::ADD;
         m_render_ptr->addTextureSlot(slot);
-		slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
+        slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
         slot.texture           = nullptr;
         slot.projector         = &m_cube_map_prj;
-        slot.combine_mode.mode = CombineStage::CombineMode::ADD;
+        slot.combine_mode.mode = CombineStage::CombineMode::REPLACE;
         m_render_ptr->addTextureSlot(slot);
         m_render_ptr->bindSlots();
         m_render_ptr->bindVertexBuffer(&m_pyramid);

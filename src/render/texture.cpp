@@ -27,28 +27,29 @@ bool Texture::loadImageDataFromFile(std::string const & fname, RendererBase cons
 
 bool Texture::loadCubeMapFromFiles(std::array<char const *, 6> const & fnames, RendererBase const & render)
 {
-	m_comitted    = false;
+    m_comitted    = false;
+    m_gen_mips    = false;
     m_type        = Type::TEXTURE_CUBE;
     m_depth       = 0;
     m_sampler.max = Filter::LINEAR;
-    m_sampler.min = Filter::LINEAR_MIPMAP_LINEAR;
-	
-	render.createTexture(*this);
-	
-	tex::ImageData image;
-	for(uint32_t i = 0; i < 6; ++i)
-	{
-		if(!tex::ReadTGA(fnames[i], image))
-			return false;
+    m_sampler.min = Filter::LINEAR;
 
-	    m_format      = image.type == tex::ImageData::PixelType::pt_rgb ? Format::R8G8B8 : Format::R8G8B8A8;
-		m_width       = image.width;
-		m_height      = image.height;
+    render.createTexture(*this);
 
-		render.uploadTextureData(*this, image, i);
-	}
+    tex::ImageData image;
+    for(uint32_t i = 0; i < fnames.size(); ++i)
+    {
+        if(!tex::ReadTGA(fnames[i], image))
+            return false;
 
-	return true;
+        m_format = image.type == tex::ImageData::PixelType::pt_rgb ? Format::R8G8B8 : Format::R8G8B8A8;
+        m_width  = image.width;
+        m_height = image.height;
+
+        render.uploadTextureData(*this, image, i);
+    }
+
+    return true;
 }
 
 glm::mat4 TextureProjector::getTransformMatrix() const

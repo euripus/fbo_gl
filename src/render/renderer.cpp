@@ -378,8 +378,8 @@ void RendererBase::bindVertexBuffer(VertexBuffer const * geo) const
                         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                         glTexCoordPointer(2, GL_FLOAT, 0, static_cast<void *>(nullptr));
                     }
-                    else
-                        enableTextureCoordGeneration(i);
+                    // else
+                    //     enableTextureCoordGeneration(i);
                 }
             }
 
@@ -412,8 +412,8 @@ void RendererBase::unbindVertexBuffer() const
                     glClientActiveTexture(texture_slot_id);
                     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
                 }
-                else
-                    disableTextureCoordGeneration(i);
+                // else
+                //     disableTextureCoordGeneration(i);
             }
         }
         if(m_last_binded_vbo_components[VertexBuffer::ComponentsBitPos::normal])
@@ -453,11 +453,12 @@ void RendererBase::createTexture(Texture & tex) const
     glBindTexture(tex_type, 0);
 }
 
-void RendererBase::uploadTextureData(Texture & tex, tex::ImageData const & tex_data, uint32_t cube_map_slice) const
+void RendererBase::uploadTextureData(Texture & tex, tex::ImageData const & tex_data,
+                                     uint32_t cube_map_slice) const
 {
     assert(tex.m_render_id != 0 && tex.m_type != Texture::Type::TEXTURE_NOTYPE);
     assert(tex_data.data.get() != nullptr && cube_map_slice < 6);
-    assert(tex.m_width == tex_data.width &&  tex.m_height == tex_data.height && tex.m_depth == tex_data.depth);
+    assert(tex.m_width == tex_data.width && tex.m_height == tex_data.height && tex.m_depth == tex_data.depth);
 
     uint32_t const  tex_type  = g_texture_gl_types[static_cast<uint32_t>(tex.m_type)];
     uint8_t const * data      = tex_data.data.get();
@@ -480,18 +481,17 @@ void RendererBase::uploadTextureData(Texture & tex, tex::ImageData const & tex_d
         if(compressed)
             glCompressedTexImage2D(target, 0, internal_format, tex.m_width, tex.m_height, 0, data_size, data);
         else
-            glTexImage2D(target, 0, internal_format,
-                         static_cast<int32_t>(tex.m_width), static_cast<int32_t>(tex.m_height), 0, input_format,
-                         input_type, data);
+            glTexImage2D(target, 0, internal_format, static_cast<int32_t>(tex.m_width),
+                         static_cast<int32_t>(tex.m_height), 0, input_format, input_type, data);
     }
     else if(tex.m_type == Texture::Type::TEXTURE_3D)
     {
         if(compressed)
-            glCompressedTexImage3D(GL_TEXTURE_3D, 0, internal_format, tex.m_width, tex.m_height, tex.m_depth, 0,
-                                   data_size, data);
+            glCompressedTexImage3D(GL_TEXTURE_3D, 0, internal_format, tex.m_width, tex.m_height, tex.m_depth,
+                                   0, data_size, data);
         else
-            glTexImage3D(GL_TEXTURE_3D, 0, internal_format, tex.m_width, tex.m_height, tex.m_depth, 0, input_format,
-                         input_type, data);
+            glTexImage3D(GL_TEXTURE_3D, 0, internal_format, tex.m_width, tex.m_height, tex.m_depth, 0,
+                         input_format, input_type, data);
     }
 
     if(tex.m_gen_mips && (tex.m_type != Texture::Type::TEXTURE_CUBE || cube_map_slice == 5))
@@ -615,7 +615,7 @@ void RendererBase::applyCombineStage(CombineStage const & combine) const
             uint32_t src = 0;
             if(src_type == CombineStage::SrcType::TEXTURE_STAGE)
             {
-                src = g_texture_gl_src_types[static_cast<uint32_t>(src_type)];
+                src  = g_texture_gl_src_types[static_cast<uint32_t>(src_type)];
                 src += num_stage;
             }
             else
@@ -715,8 +715,8 @@ void RendererBase::bindSlots() const
         }
         else
         {
-            uint32_t const target =
-                g_texture_gl_types[static_cast<uint32_t>(m_texture_slots[i].projector->projected_texture->m_type)];
+            uint32_t const target = g_texture_gl_types[static_cast<uint32_t>(
+                m_texture_slots[i].projector->projected_texture->m_type)];
             enableTextureCoordGeneration(i, target);
         }
 
@@ -739,8 +739,8 @@ void RendererBase::unbindSlots() const
         }
         else
         {
-            uint32_t const target =
-                g_texture_gl_types[static_cast<uint32_t>(m_texture_slots[i].projector->projected_texture->m_type)];
+            uint32_t const target = g_texture_gl_types[static_cast<uint32_t>(
+                m_texture_slots[i].projector->projected_texture->m_type)];
             disableTextureCoordGeneration(i, target);
         }
 
@@ -791,18 +791,19 @@ void RendererBase::enableTextureCoordGeneration(std::uint32_t slot_num, uint32_t
     else
     {
         assert(slot.projector->projected_texture->m_type == Texture::Type::TEXTURE_CUBE);
-        
-        auto refl_mode = slot.cube_map_mode == TextureSlot::CubeMapGenMode::NORMAL ? GL_NORMAL_MAP : GL_REFLECTION_MAP;
-        
-        glTexGeni ( GL_S, GL_TEXTURE_GEN_MODE, refl_mode );
-        glEnable  ( GL_TEXTURE_GEN_S );
-        
-        glTexGeni ( GL_T, GL_TEXTURE_GEN_MODE, refl_mode );
-        glEnable  ( GL_TEXTURE_GEN_T );
 
-        glTexGeni ( GL_R, GL_TEXTURE_GEN_MODE, refl_mode );
-        glEnable  ( GL_TEXTURE_GEN_R );
-        
+        int32_t refl_mode =
+            slot.cube_map_mode == TextureSlot::CubeMapGenMode::NORMAL ? GL_NORMAL_MAP : GL_REFLECTION_MAP;
+
+        glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, refl_mode);
+        glEnable(GL_TEXTURE_GEN_S);
+
+        glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, refl_mode);
+        glEnable(GL_TEXTURE_GEN_T);
+
+        glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, refl_mode);
+        glEnable(GL_TEXTURE_GEN_R);
+
         glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, refl_mode);
         glEnable(GL_TEXTURE_GEN_Q);
     }
