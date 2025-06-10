@@ -42,8 +42,7 @@ public:
 
     // Textures
     void createTexture(Texture & tex) const;
-    void uploadTextureData(Texture & tex, tex::ImageData const & tex_data, uint32_t cube_map_slice = 0,
-                           uint32_t mip_level = 0) const;
+    void uploadTextureData(Texture & tex, tex::ImageData const & tex_data, uint32_t cube_map_slice = 0) const;
     void destroyTexture(Texture & tex) const;
     bool get2DTextureData(Texture const & tex, tex::ImageData & tex_data, uint32_t cube_map_slice = 0) const;
     void applySamplerState(Texture const & tex) const;
@@ -54,8 +53,8 @@ public:
     void          unbindSlots() const;
     void          clearSlots() { m_texture_slots.resize(0); }
     void          unbindAndClearSlots();
-    void          enableTextureCoordGeneration(std::uint32_t slot_num) const;
-    void          disableTextureCoordGeneration(std::uint32_t slot_num) const;
+    void          enableTextureCoordGeneration(std::uint32_t slot_num, uint32_t target) const;
+    void          disableTextureCoordGeneration(std::uint32_t slot_num, uint32_t target) const;
 
     // Light`s
     void     clearLights() { m_lights_queue.resize(0); }

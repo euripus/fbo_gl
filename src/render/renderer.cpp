@@ -453,11 +453,11 @@ void RendererBase::createTexture(Texture & tex) const
     glBindTexture(tex_type, 0);
 }
 
-void RendererBase::uploadTextureData(Texture & tex, tex::ImageData const & tex_data, uint32_t cube_map_slice,
-                                     uint32_t mip_level) const
+void RendererBase::uploadTextureData(Texture & tex, tex::ImageData const & tex_data, uint32_t cube_map_slice) const
 {
     assert(tex.m_render_id != 0 && tex.m_type != Texture::Type::TEXTURE_NOTYPE);
     assert(tex_data.data.get() != nullptr && cube_map_slice < 6);
+    assert(tex.m_width == tex_data.width &&  tex.m_height == tex_data.height && tex.m_depth == tex_data.depth);
 
     uint32_t const  tex_type  = g_texture_gl_types[static_cast<uint32_t>(tex.m_type)];
     uint8_t const * data      = tex_data.data.get();
@@ -472,31 +472,25 @@ void RendererBase::uploadTextureData(Texture & tex, tex::ImageData const & tex_d
     uint32_t const input_format = g_texture_gl_formats[static_cast<uint32_t>(tex.m_format)].gl_input_format;
     uint32_t const input_type = g_texture_gl_formats[static_cast<uint32_t>(tex.m_format)].gl_input_data_type;
 
-    // Calculate size of next mipmap using "floor" convention
-    uint32_t const width  = std::max(tex.m_width >> mip_level, 1u);
-    uint32_t const height = std::max(tex.m_height >> mip_level, 1u);
-
     if(tex.m_type == Texture::Type::TEXTURE_2D || tex.m_type == Texture::Type::TEXTURE_CUBE)
     {
         uint32_t const target =
             (tex.m_type == Texture::Type::TEXTURE_2D) ? tex_type : (tex_type + cube_map_slice);
 
         if(compressed)
-            glCompressedTexImage2D(target, mip_level, internal_format, width, height, 0, data_size, data);
+            glCompressedTexImage2D(target, 0, internal_format, tex.m_width, tex.m_height, 0, data_size, data);
         else
-            glTexImage2D(target, static_cast<int32_t>(mip_level), internal_format,
-                         static_cast<int32_t>(width), static_cast<int32_t>(height), 0, input_format,
+            glTexImage2D(target, 0, internal_format,
+                         static_cast<int32_t>(tex.m_width), static_cast<int32_t>(tex.m_height), 0, input_format,
                          input_type, data);
     }
     else if(tex.m_type == Texture::Type::TEXTURE_3D)
     {
-        uint32_t const depth = std::max(tex.m_depth >> mip_level, 1u);
-
         if(compressed)
-            glCompressedTexImage3D(GL_TEXTURE_3D, mip_level, internal_format, width, height, depth, 0,
+            glCompressedTexImage3D(GL_TEXTURE_3D, 0, internal_format, tex.m_width, tex.m_height, tex.m_depth, 0,
                                    data_size, data);
         else
-            glTexImage3D(GL_TEXTURE_3D, mip_level, internal_format, width, height, depth, 0, input_format,
+            glTexImage3D(GL_TEXTURE_3D, 0, internal_format, tex.m_width, tex.m_height, tex.m_depth, 0, input_format,
                          input_type, data);
     }
 
@@ -563,6 +557,7 @@ bool RendererBase::get2DTextureData(Texture const & tex, tex::ImageData & tex_da
 
     tex_data.width     = tex.m_width;
     tex_data.height    = tex.m_height;
+    tex_data.depth     = 0;
     tex_data.data_size = data_size;
     tex_data.type      = px_type;
     tex_data.data      = std::make_unique<uint8_t[]>(tex_data.data_size);
@@ -719,7 +714,11 @@ void RendererBase::bindSlots() const
             glBindTexture(target, m_texture_slots[i].texture->m_render_id);
         }
         else
-            enableTextureCoordGeneration(i);
+        {
+            uint32_t const target =
+                g_texture_gl_types[static_cast<uint32_t>(m_texture_slots[i].projector->projected_texture->m_type)];
+            enableTextureCoordGeneration(i, target);
+        }
 
         applyCombineStage(m_texture_slots[i].combine_mode);
     }
@@ -739,7 +738,11 @@ void RendererBase::unbindSlots() const
             glDisable(target);
         }
         else
-            disableTextureCoordGeneration(i);
+        {
+            uint32_t const target =
+                g_texture_gl_types[static_cast<uint32_t>(m_texture_slots[i].projector->projected_texture->m_type)];
+            disableTextureCoordGeneration(i, target);
+        }
 
         applyCombineStage({});
     }
@@ -751,48 +754,71 @@ void RendererBase::unbindAndClearSlots()
     clearSlots();
 }
 
-void RendererBase::enableTextureCoordGeneration(std::uint32_t slot_num) const
+void RendererBase::enableTextureCoordGeneration(std::uint32_t slot_num, uint32_t target) const
 {
     assert(slot_num < m_texture_slots.size());
 
     TextureSlot const & slot = m_texture_slots[slot_num];
     assert(slot.projector != nullptr);
 
-    auto transform_mtx = slot.projector->getTransformMatrix();
-
     glActiveTexture(GL_TEXTURE0 + slot_num);
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, slot.projector->projected_texture->m_render_id);
+    glEnable(target);
+    glBindTexture(target, slot.projector->projected_texture->m_render_id);
 
-    // Set up texture coordinate generation
-    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-    glTexGenfv(GL_S, GL_EYE_PLANE, glm::value_ptr(GetMtrxRow(transform_mtx, 0)));
-    glEnable(GL_TEXTURE_GEN_S);
+    if(!slot.projector->is_cube_map)
+    {
+        assert(slot.projector->projected_texture->m_type == Texture::Type::TEXTURE_2D);
 
-    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-    glTexGenfv(GL_T, GL_EYE_PLANE, glm::value_ptr(GetMtrxRow(transform_mtx, 1)));
-    glEnable(GL_TEXTURE_GEN_T);
+        auto transform_mtx = slot.projector->getTransformMatrix();
 
-    glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-    glTexGenfv(GL_R, GL_EYE_PLANE, glm::value_ptr(GetMtrxRow(transform_mtx, 2)));
-    glEnable(GL_TEXTURE_GEN_R);
+        // Set up texture coordinate generation
+        glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+        glTexGenfv(GL_S, GL_EYE_PLANE, glm::value_ptr(GetMtrxRow(transform_mtx, 0)));
+        glEnable(GL_TEXTURE_GEN_S);
 
-    glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-    glTexGenfv(GL_Q, GL_EYE_PLANE, glm::value_ptr(GetMtrxRow(transform_mtx, 3)));
-    glEnable(GL_TEXTURE_GEN_Q);
+        glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+        glTexGenfv(GL_T, GL_EYE_PLANE, glm::value_ptr(GetMtrxRow(transform_mtx, 1)));
+        glEnable(GL_TEXTURE_GEN_T);
+
+        glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+        glTexGenfv(GL_R, GL_EYE_PLANE, glm::value_ptr(GetMtrxRow(transform_mtx, 2)));
+        glEnable(GL_TEXTURE_GEN_R);
+
+        glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+        glTexGenfv(GL_Q, GL_EYE_PLANE, glm::value_ptr(GetMtrxRow(transform_mtx, 3)));
+        glEnable(GL_TEXTURE_GEN_Q);
+    }
+    else
+    {
+        assert(slot.projector->projected_texture->m_type == Texture::Type::TEXTURE_CUBE);
+        
+        auto refl_mode = slot.cube_map_mode == TextureSlot::CubeMapGenMode::NORMAL ? GL_NORMAL_MAP : GL_REFLECTION_MAP;
+        
+        glTexGeni ( GL_S, GL_TEXTURE_GEN_MODE, refl_mode );
+        glEnable  ( GL_TEXTURE_GEN_S );
+        
+        glTexGeni ( GL_T, GL_TEXTURE_GEN_MODE, refl_mode );
+        glEnable  ( GL_TEXTURE_GEN_T );
+
+        glTexGeni ( GL_R, GL_TEXTURE_GEN_MODE, refl_mode );
+        glEnable  ( GL_TEXTURE_GEN_R );
+        
+        glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, refl_mode);
+        glEnable(GL_TEXTURE_GEN_Q);
+    }
 }
 
-void RendererBase::disableTextureCoordGeneration(std::uint32_t slot_num) const
+void RendererBase::disableTextureCoordGeneration(std::uint32_t slot_num, uint32_t target) const
 {
     assert(slot_num < m_texture_slots.size());
 
     glActiveTexture(GL_TEXTURE0 + slot_num);
-    glDisable(GL_TEXTURE_2D);
+    glDisable(target);
     glDisable(GL_TEXTURE_GEN_S);
     glDisable(GL_TEXTURE_GEN_T);
     glDisable(GL_TEXTURE_GEN_R);
     glDisable(GL_TEXTURE_GEN_Q);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(target, 0);
 }
 
 void RendererBase::clearLight(uint32_t index)
