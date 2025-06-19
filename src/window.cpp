@@ -272,7 +272,7 @@ void Window::initScene()
 
 void Window::run()
 {
-    // bool        once = true;
+    bool        once = true;
     glm::mat4   prj_mtx, mtx;
     TextureSlot slot;
 
@@ -367,7 +367,7 @@ void Window::run()
             auto plane              = TextureProjector::GetPlaneFromPoints(v0, v1, v2);
             m_camera_prj.reflection = TextureProjector::GetReflectionMatrix(plane);
 
-            m_render_ptr->setClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 0.1f));
+            m_render_ptr->setClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 0.0f));
             m_render_ptr->clearColorBuffer();
             m_render_ptr->clearDepthBuffer();
 
@@ -400,7 +400,7 @@ void Window::run()
             slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
             slot.texture           = nullptr;
             slot.projector         = &m_decal_prj;
-            slot.combine_mode.mode = CombineStage::CombineMode::ADD;
+            slot.combine_mode.mode = CombineStage::CombineMode::DECAL;
             m_render_ptr->addTextureSlot(slot);
             m_render_ptr->bindSlots();
             m_render_ptr->bindVertexBuffer(&m_pyramid);
@@ -417,7 +417,7 @@ void Window::run()
             slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
             slot.texture           = nullptr;
             slot.projector         = &m_decal_prj;
-            slot.combine_mode.mode = CombineStage::CombineMode::ADD;
+            slot.combine_mode.mode = CombineStage::CombineMode::DECAL;
             m_render_ptr->addTextureSlot(slot);
 
             m_render_ptr->bindSlots();
@@ -436,7 +436,7 @@ void Window::run()
             m_render_ptr->getTextureSlot(slot_num).coord_source =
                 TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
             m_render_ptr->getTextureSlot(slot_num).projector         = &m_decal_prj;
-            m_render_ptr->getTextureSlot(slot_num).combine_mode.mode = CombineStage::CombineMode::ADD;
+            m_render_ptr->getTextureSlot(slot_num).combine_mode.mode = CombineStage::CombineMode::DECAL;
 
             m_render_ptr->bindSlots();
             m_render_ptr->bindVertexBuffer(&m_sphere);
@@ -458,15 +458,15 @@ void Window::run()
             m_render_ptr->bindDefaultFbo();
         }
 
-        // if(once)
-        // {
-        //     tex::ImageData image;
+        if(once)
+        {
+            tex::ImageData image;
 
-        //     m_render_ptr->get2DTextureData(m_reflection_texture, image);
-        //     tex::WriteTGA("reflection.tga", image);
+            m_render_ptr->get2DTextureData(m_reflection_texture, image);
+            tex::WriteTGA("reflection.tga", image);
 
-        //     once = false;
-        // }
+            once = false;
+        }
 
         //         Render scene:
         // bind lights
@@ -505,7 +505,7 @@ void Window::run()
         slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
         slot.texture           = nullptr;
         slot.projector         = &m_decal_prj;
-        slot.combine_mode.mode = CombineStage::CombineMode::ADD;
+        slot.combine_mode.mode = CombineStage::CombineMode::DECAL;
         m_render_ptr->addTextureSlot(slot);
         slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
         slot.texture           = nullptr;
@@ -527,7 +527,7 @@ void Window::run()
 
         CombineStage blend_combine;
         blend_combine.mode           = CombineStage::CombineMode::COMBINE;
-        blend_combine.rgb_func       = CombineStage::CombineFunctions::INTERPOLATE;
+        blend_combine.rgb_func       = CombineStage::CombineFunctions::MODULATE;
         blend_combine.alpha_func     = CombineStage::CombineFunctions::REPLACE;
         blend_combine.rgb_src0       = CombineStage::SrcType::PREVIOUS;
         blend_combine.rgb_src1       = CombineStage::SrcType::TEXTURE;
@@ -545,6 +545,7 @@ void Window::run()
         slot.texture                 = nullptr;
         slot.projector               = &m_camera_prj;
         slot.combine_mode            = blend_combine;
+        // slot.combine_mode.mode = CombineStage::CombineMode::DECAL;
         m_render_ptr->addTextureSlot(slot);
 
         slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
@@ -555,7 +556,7 @@ void Window::run()
         slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
         slot.texture           = nullptr;
         slot.projector         = &m_decal_prj;
-        slot.combine_mode.mode = CombineStage::CombineMode::ADD;
+        slot.combine_mode.mode = CombineStage::CombineMode::DECAL;
         m_render_ptr->addTextureSlot(slot);
 
         m_render_ptr->bindSlots();
@@ -574,7 +575,7 @@ void Window::run()
         m_render_ptr->getTextureSlot(slot_num).coord_source =
             TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
         m_render_ptr->getTextureSlot(slot_num).projector         = &m_decal_prj;
-        m_render_ptr->getTextureSlot(slot_num).combine_mode.mode = CombineStage::CombineMode::ADD;
+        m_render_ptr->getTextureSlot(slot_num).combine_mode.mode = CombineStage::CombineMode::DECAL;
 
         m_render_ptr->bindSlots();
         m_render_ptr->bindVertexBuffer(&m_sphere);

@@ -70,7 +70,7 @@ public:
         Wrap      s              = Wrap::REPEAT;
         Wrap      t              = Wrap::REPEAT;
         Wrap      r              = Wrap::REPEAT;
-        glm::vec4 border_color   = {0.0f, 0.0f, 0.0f, 1.0f};
+        glm::vec4 border_color   = {0.0f, 0.0f, 0.0f, 0.0f};
         float     max_anisotropy = 1.0f;
         bool      compare_mode   = false;
     };
