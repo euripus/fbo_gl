@@ -272,7 +272,7 @@ void Window::initScene()
 
 void Window::run()
 {
-    bool        once = true;
+    // bool        once = true;
     glm::mat4   prj_mtx, mtx;
     TextureSlot slot;
 
@@ -317,7 +317,7 @@ void Window::run()
             m_render_ptr->bindDefaultFbo();
         }
 
-        // render to texture
+        // // render to texture
         if(m_render_ptr->bindTextureAsFrameBuffer(&m_render_texture))
         {
             prj_mtx = glm::perspective(glm::radians(45.0f), 1.f, 0.1f, 100.0f);
@@ -351,7 +351,7 @@ void Window::run()
             m_render_ptr->bindDefaultFbo();
         }
 
-        // render reflection
+        // // render reflection
         if(m_render_ptr->bindTextureAsFrameBuffer(&m_reflection_texture))
         {
             // make reflection matrix
@@ -458,15 +458,15 @@ void Window::run()
             m_render_ptr->bindDefaultFbo();
         }
 
-        if(once)
-        {
-            tex::ImageData image;
+        // if(once)
+        // {
+        //     tex::ImageData image;
 
-            m_render_ptr->get2DTextureData(m_reflection_texture, image);
-            tex::WriteTGA("reflection.tga", image);
+        //     m_render_ptr->get2DTextureData(m_reflection_texture, image);
+        //     tex::WriteTGA("reflection.tga", image);
 
-            once = false;
-        }
+        //     once = false;
+        // }
 
         //         Render scene:
         // bind lights
@@ -510,7 +510,7 @@ void Window::run()
         slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
         slot.texture           = nullptr;
         slot.projector         = &m_cube_map_prj;
-        slot.combine_mode.mode = CombineStage::CombineMode::REPLACE;
+        slot.combine_mode.mode = CombineStage::CombineMode::MODULATE;
         m_render_ptr->addTextureSlot(slot);
         m_render_ptr->bindSlots();
         m_render_ptr->bindVertexBuffer(&m_pyramid);

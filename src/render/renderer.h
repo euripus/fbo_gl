@@ -51,7 +51,7 @@ public:
     TextureSlot & getTextureSlot(uint32_t slot_num);
     void          bindSlots() const;
     void          unbindSlots() const;
-    void          clearSlots() { m_texture_slots.resize(0); }
+    void          clearSlots();
     void          unbindAndClearSlots();
     void          enableTextureCoordGeneration(std::uint32_t slot_num, uint32_t target) const;
     void          disableTextureCoordGeneration(std::uint32_t slot_num, uint32_t target) const;

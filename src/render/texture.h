@@ -225,7 +225,7 @@ struct TextureSlot
     };
 
     TexCoordSource coord_source    = TexCoordSource::TEX_COORD_BUFFER;
-    CubeMapGenMode cube_map_mode   = CubeMapGenMode::NORMAL;
+    CubeMapGenMode cube_map_mode   = CubeMapGenMode::REFLECTION;
     std::uint32_t  tex_channel_num = 0;   // num of active channel in tex_coords pool
     CombineStage   combine_mode    = {};
 

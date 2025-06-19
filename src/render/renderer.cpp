@@ -378,8 +378,6 @@ void RendererBase::bindVertexBuffer(VertexBuffer const * geo) const
                         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                         glTexCoordPointer(2, GL_FLOAT, 0, static_cast<void *>(nullptr));
                     }
-                    // else
-                    //     enableTextureCoordGeneration(i);
                 }
             }
 
@@ -412,8 +410,6 @@ void RendererBase::unbindVertexBuffer() const
                     glClientActiveTexture(texture_slot_id);
                     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
                 }
-                // else
-                //     disableTextureCoordGeneration(i);
             }
         }
         if(m_last_binded_vbo_components[VertexBuffer::ComponentsBitPos::normal])
@@ -475,8 +471,9 @@ void RendererBase::uploadTextureData(Texture & tex, tex::ImageData const & tex_d
 
     if(tex.m_type == Texture::Type::TEXTURE_2D || tex.m_type == Texture::Type::TEXTURE_CUBE)
     {
-        uint32_t const target =
-            (tex.m_type == Texture::Type::TEXTURE_2D) ? tex_type : (tex_type + cube_map_slice);
+        uint32_t const target = (tex.m_type == Texture::Type::TEXTURE_2D)
+                                    ? tex_type
+                                    : (GL_TEXTURE_CUBE_MAP_POSITIVE_X + cube_map_slice);
 
         if(compressed)
             glCompressedTexImage2D(target, 0, internal_format, tex.m_width, tex.m_height, 0, data_size, data);
@@ -748,6 +745,16 @@ void RendererBase::unbindSlots() const
     }
 }
 
+void RendererBase::clearSlots()
+{
+    // glActiveTexture(GL_TEXTURE0);
+    // glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    // glBindTexture(GL_TEXTURE_3D, 0);
+    // glBindTexture(GL_TEXTURE_2D, 0);
+
+    m_texture_slots.resize(0);
+}
+
 void RendererBase::unbindAndClearSlots()
 {
     unbindSlots();
@@ -804,8 +811,8 @@ void RendererBase::enableTextureCoordGeneration(std::uint32_t slot_num, uint32_t
         glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, refl_mode);
         glEnable(GL_TEXTURE_GEN_R);
 
-        glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, refl_mode);
-        glEnable(GL_TEXTURE_GEN_Q);
+        // glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, refl_mode);
+        // glEnable(GL_TEXTURE_GEN_Q);
     }
 }
 
