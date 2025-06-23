@@ -117,16 +117,12 @@ struct Light
 struct TextureProjector
 {
     bool  is_ortho      = false;
-    bool  is_mdv_matrix = false;
     bool  is_reflection = false;
     bool  is_cube_map   = false;
     float fovy          = 45.f;
 
     Texture const * projected_texture = nullptr;
 
-    glm::vec3 prj_pos    = glm::vec3(0.0f, 0.0f, 3.0f);
-    glm::vec3 prj_pov    = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 prj_up     = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::mat4 modelview  = glm::mat4(1.f);
     glm::mat4 reflection = glm::mat4(1.f);
 

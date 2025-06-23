@@ -42,9 +42,9 @@ public:
 
     // Textures
     void createTexture(Texture & tex) const;
-    void uploadTextureData(Texture & tex, tex::ImageData const & tex_data, uint32_t cube_map_slice = 0) const;
+    void uploadTextureData(Texture & tex, tex::ImageData const & tex_data, Texture::CubeFace face = Texture::CubeFace::POS_X) const;
     void destroyTexture(Texture & tex) const;
-    bool get2DTextureData(Texture const & tex, tex::ImageData & tex_data, uint32_t cube_map_slice = 0) const;
+    bool get2DTextureData(Texture const & tex, tex::ImageData & tex_data, Texture::CubeFace face = Texture::CubeFace::POS_X) const;
     void applySamplerState(Texture const & tex) const;
     void applyCombineStage(CombineStage const & combine) const;
     uint32_t      addTextureSlot(TextureSlot slot);

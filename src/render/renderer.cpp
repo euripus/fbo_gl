@@ -450,10 +450,10 @@ void RendererBase::createTexture(Texture & tex) const
 }
 
 void RendererBase::uploadTextureData(Texture & tex, tex::ImageData const & tex_data,
-                                     uint32_t cube_map_slice) const
+                                     Texture::CubeFace face) const
 {
     assert(tex.m_render_id != 0 && tex.m_type != Texture::Type::TEXTURE_NOTYPE);
-    assert(tex_data.data.get() != nullptr && cube_map_slice < 6);
+    assert(tex_data.data.get() != nullptr);
     assert(tex.m_width == tex_data.width && tex.m_height == tex_data.height && tex.m_depth == tex_data.depth);
 
     uint32_t const  tex_type  = g_texture_gl_types[static_cast<uint32_t>(tex.m_type)];
@@ -473,7 +473,7 @@ void RendererBase::uploadTextureData(Texture & tex, tex::ImageData const & tex_d
     {
         uint32_t const target = (tex.m_type == Texture::Type::TEXTURE_2D)
                                     ? tex_type
-                                    : (GL_TEXTURE_CUBE_MAP_POSITIVE_X + cube_map_slice);
+                                    : (GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<uint32_t>(face));
 
         if(compressed)
             glCompressedTexImage2D(target, 0, internal_format, tex.m_width, tex.m_height, 0, data_size, data);
@@ -491,7 +491,7 @@ void RendererBase::uploadTextureData(Texture & tex, tex::ImageData const & tex_d
                          input_format, input_type, data);
     }
 
-    if(tex.m_gen_mips && (tex.m_type != Texture::Type::TEXTURE_CUBE || cube_map_slice == 5))
+    if(tex.m_gen_mips && (tex.m_type != Texture::Type::TEXTURE_CUBE || face == Texture::CubeFace::NEG_Z))
     {
         // Note: for cube maps mips are only generated when the side with the highest index is uploaded
         glEnable(tex_type);
@@ -514,14 +514,14 @@ void RendererBase::destroyTexture(Texture & tex) const
 }
 
 bool RendererBase::get2DTextureData(Texture const & tex, tex::ImageData & tex_data,
-                                    uint32_t cube_map_slice) const
+                                    Texture::CubeFace face) const
 {
     assert(tex.m_render_id != 0
            && (tex.m_type == Texture::Type::TEXTURE_2D || tex.m_type == Texture::Type::TEXTURE_CUBE));
 
     uint32_t target = tex.m_type == Texture::Type::TEXTURE_CUBE ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
     if(target == GL_TEXTURE_CUBE_MAP)
-        target = GL_TEXTURE_CUBE_MAP_POSITIVE_X + cube_map_slice;
+        target = GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<uint32_t>(face);
 
     if(static_cast<uint32_t>(tex.m_format) > g_texture_gl_formats.size())
         return false;
@@ -598,12 +598,18 @@ void RendererBase::applySamplerState(Texture const & tex) const
 // https://www.khronos.org/opengl/wiki/Texture_Combiners
 void RendererBase::applyCombineStage(CombineStage const & combine) const
 {
+	assert(combine.mode != CombineStage::CombineMode::QUANTITY);
+
     int32_t const combine_func =
         static_cast<int32_t>(g_texture_gl_combine_modes[static_cast<uint32_t>(combine.mode)]);
 
-    if(combine.mode == CombineStage::CombineMode::COMBINE)
+    if(combine.mode != CombineStage::CombineMode::COMBINE)
     {
-        int32_t const combine_rgb =
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, combine_func);
+    }
+    else
+    {		
+		int32_t const combine_rgb =
             static_cast<int32_t>(g_texture_gl_combine_functions[static_cast<uint32_t>(combine.rgb_func)]);
         int32_t const combine_alpha =
             static_cast<int32_t>(g_texture_gl_combine_functions[static_cast<uint32_t>(combine.alpha_func)]);
@@ -675,10 +681,6 @@ void RendererBase::applyCombineStage(CombineStage const & combine) const
         {
             glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, glm::value_ptr(combine.constant_color));
         }
-    }
-    else
-    {
-        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, combine_func);
     }
 }
 

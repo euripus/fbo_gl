@@ -46,7 +46,7 @@ bool Texture::loadCubeMapFromFiles(std::array<char const *, 6> const & fnames, R
         m_width  = image.width;
         m_height = image.height;
 
-        render.uploadTextureData(*this, image, i);
+        render.uploadTextureData(*this, image, static_cast<CubeFace>(i));
     }
 
     return true;
@@ -97,10 +97,7 @@ glm::mat4 TextureProjector::getProjectionMatrix() const
 
 glm::mat4 TextureProjector::getModelviewMatrix() const
 {
-    if(is_mdv_matrix)
-        return modelview;
-
-    return glm::lookAt(prj_pos, prj_pov, prj_up);
+    return modelview;
 }
 
 glm::mat4 TextureProjector::GetReflectionMatrix(glm::vec4 plane)

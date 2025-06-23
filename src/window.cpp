@@ -124,19 +124,17 @@ Window::Window(int width, int height, char const * title)
     m_cube_map_texture.m_sampler.t   = Texture::Wrap::CLAMP_TO_EDGE;
 
     m_decal_prj.projected_texture = &m_decal_texture;
+    m_decal_prj.modelview = glm::lookAt({0.0f, 0.0f, 3.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
 
     m_shadow_prj.projected_texture = &m_shadow_texture;
-    m_shadow_prj.prj_pos           = m_light.m_position;
+    m_shadow_prj.modelview           = glm::lookAt(m_light.m_position, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
     m_shadow_prj.is_ortho          = true;
 
     m_camera_prj.projected_texture = &m_reflection_texture;
-    m_camera_prj.is_mdv_matrix     = true;
     m_camera_prj.is_reflection     = true;
-
     glm::mat4 mtx = glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, -7.0f});
     mtx           = glm::rotate(mtx, glm::radians(45.0f), {1.0f, 0.0f, 0.0f});
     mtx           = glm::rotate(mtx, glm::radians(60.0f), {0.0f, 1.0f, 0.0f});
-
     m_camera_prj.modelview = mtx;
 
     m_cube_map_prj.projected_texture = &m_cube_map_texture;
@@ -335,7 +333,7 @@ void Window::run()
             slot.tex_channel_num   = 0;
             slot.texture           = &m_second_texture;
             slot.projector         = nullptr;
-            slot.combine_mode.mode = CombineStage::CombineMode::REPLACE;
+            slot.combine_mode.mode = CombineStage::CombineMode::MODULATE;
             m_render_ptr->addTextureSlot(slot);
             m_render_ptr->bindSlots();
             m_render_ptr->bindVertexBuffer(&m_pyramid);
@@ -389,7 +387,7 @@ void Window::run()
             slot.tex_channel_num   = 0;
             slot.texture           = &m_base_texture;
             slot.projector         = nullptr;
-            slot.combine_mode.mode = CombineStage::CombineMode::REPLACE;
+            slot.combine_mode.mode = CombineStage::CombineMode::MODULATE;
             m_render_ptr->addTextureSlot(slot);
             slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_BUFFER;
             slot.tex_channel_num   = 1;
@@ -412,7 +410,7 @@ void Window::run()
             slot.tex_channel_num   = 0;
             slot.texture           = &m_marble_texture;
             slot.projector         = nullptr;
-            slot.combine_mode.mode = CombineStage::CombineMode::REPLACE;
+            slot.combine_mode.mode = CombineStage::CombineMode::MODULATE;
             m_render_ptr->addTextureSlot(slot);
             slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
             slot.texture           = nullptr;
@@ -430,7 +428,7 @@ void Window::run()
             slot_ref.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_BUFFER;
             slot_ref.tex_channel_num   = 0;
             slot_ref.texture           = &m_base_texture;
-            slot_ref.combine_mode.mode = CombineStage::CombineMode::REPLACE;
+            slot_ref.combine_mode.mode = CombineStage::CombineMode::MODULATE;
 
             auto const slot_num = m_render_ptr->addTextureSlot({});
             m_render_ptr->getTextureSlot(slot_num).coord_source =
@@ -494,7 +492,7 @@ void Window::run()
         slot.tex_channel_num   = 0;
         slot.texture           = &m_base_texture;
         slot.projector         = nullptr;
-        slot.combine_mode.mode = CombineStage::CombineMode::REPLACE;
+        slot.combine_mode.mode = CombineStage::CombineMode::MODULATE;
         m_render_ptr->addTextureSlot(slot);
         slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_BUFFER;
         slot.tex_channel_num   = 1;
@@ -522,19 +520,25 @@ void Window::run()
         slot.tex_channel_num   = 0;
         slot.texture           = &m_marble_texture;
         slot.projector         = nullptr;
-        slot.combine_mode.mode = CombineStage::CombineMode::REPLACE;
+        slot.combine_mode.mode = CombineStage::CombineMode::MODULATE;
         m_render_ptr->addTextureSlot(slot);
 
         CombineStage blend_combine;
         blend_combine.mode           = CombineStage::CombineMode::COMBINE;
-        blend_combine.rgb_func       = CombineStage::CombineFunctions::MODULATE;
+        blend_combine.rgb_func       = CombineStage::CombineFunctions::INTERPOLATE;
         blend_combine.alpha_func     = CombineStage::CombineFunctions::REPLACE;
-        blend_combine.rgb_src0       = CombineStage::SrcType::PREVIOUS;
-        blend_combine.rgb_src1       = CombineStage::SrcType::TEXTURE;
-        blend_combine.rgb_src2       = CombineStage::SrcType::TEXTURE;
-        blend_combine.alpha_src0     = CombineStage::SrcType::PREVIOUS;
-        blend_combine.alpha_src1     = CombineStage::SrcType::PREVIOUS;
-        blend_combine.alpha_src2     = CombineStage::SrcType::PREVIOUS;
+        blend_combine.rgb_src0       = CombineStage::SrcType::TEXTURE_STAGE;
+		blend_combine.rgb_stage0 = 0;
+        blend_combine.rgb_src1       = CombineStage::SrcType::TEXTURE_STAGE;
+		blend_combine.rgb_stage1 = 1;
+        blend_combine.rgb_src2       = CombineStage::SrcType::TEXTURE_STAGE;
+		blend_combine.rgb_stage2 = 1;
+        blend_combine.alpha_src0     = CombineStage::SrcType::TEXTURE_STAGE;
+		blend_combine.alpha_stage0 = 1;
+        blend_combine.alpha_src1     = CombineStage::SrcType::TEXTURE_STAGE;
+		blend_combine.alpha_stage1 = 1;
+        blend_combine.alpha_src2     = CombineStage::SrcType::TEXTURE_STAGE;
+		blend_combine.alpha_stage2 = 1;
         blend_combine.rgb_operand0   = CombineStage::OperandType::SRC_COLOR;
         blend_combine.rgb_operand1   = CombineStage::OperandType::SRC_COLOR;
         blend_combine.rgb_operand2   = CombineStage::OperandType::SRC_ALPHA;
@@ -569,7 +573,7 @@ void Window::run()
         slot_ref.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_BUFFER;
         slot_ref.tex_channel_num   = 0;
         slot_ref.texture           = &m_base_texture;
-        slot_ref.combine_mode.mode = CombineStage::CombineMode::REPLACE;
+        slot_ref.combine_mode.mode = CombineStage::CombineMode::MODULATE;
 
         auto const slot_num = m_render_ptr->addTextureSlot({});
         m_render_ptr->getTextureSlot(slot_num).coord_source =
