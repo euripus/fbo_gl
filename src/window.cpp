@@ -124,18 +124,19 @@ Window::Window(int width, int height, char const * title)
     m_cube_map_texture.m_sampler.t   = Texture::Wrap::CLAMP_TO_EDGE;
 
     m_decal_prj.projected_texture = &m_decal_texture;
-    m_decal_prj.modelview = glm::lookAt({0.0f, 0.0f, 3.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
+    m_decal_prj.modelview = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f), {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
 
     m_shadow_prj.projected_texture = &m_shadow_texture;
-    m_shadow_prj.modelview           = glm::lookAt(m_light.m_position, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
-    m_shadow_prj.is_ortho          = true;
+    m_shadow_prj.modelview =
+        glm::lookAt(glm::vec3(m_light.m_position), {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
+    m_shadow_prj.is_ortho = true;
 
     m_camera_prj.projected_texture = &m_reflection_texture;
     m_camera_prj.is_reflection     = true;
-    glm::mat4 mtx = glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, -7.0f});
-    mtx           = glm::rotate(mtx, glm::radians(45.0f), {1.0f, 0.0f, 0.0f});
-    mtx           = glm::rotate(mtx, glm::radians(60.0f), {0.0f, 1.0f, 0.0f});
-    m_camera_prj.modelview = mtx;
+    glm::mat4 mtx                  = glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, -7.0f});
+    mtx                            = glm::rotate(mtx, glm::radians(45.0f), {1.0f, 0.0f, 0.0f});
+    mtx                            = glm::rotate(mtx, glm::radians(60.0f), {0.0f, 1.0f, 0.0f});
+    m_camera_prj.modelview         = mtx;
 
     m_cube_map_prj.projected_texture = &m_cube_map_texture;
     m_cube_map_prj.is_cube_map       = true;
@@ -528,17 +529,17 @@ void Window::run()
         blend_combine.rgb_func       = CombineStage::CombineFunctions::INTERPOLATE;
         blend_combine.alpha_func     = CombineStage::CombineFunctions::REPLACE;
         blend_combine.rgb_src0       = CombineStage::SrcType::TEXTURE_STAGE;
-		blend_combine.rgb_stage0 = 0;
+        blend_combine.rgb_stage0     = 0;
         blend_combine.rgb_src1       = CombineStage::SrcType::TEXTURE_STAGE;
-		blend_combine.rgb_stage1 = 1;
+        blend_combine.rgb_stage1     = 1;
         blend_combine.rgb_src2       = CombineStage::SrcType::TEXTURE_STAGE;
-		blend_combine.rgb_stage2 = 1;
+        blend_combine.rgb_stage2     = 1;
         blend_combine.alpha_src0     = CombineStage::SrcType::TEXTURE_STAGE;
-		blend_combine.alpha_stage0 = 1;
+        blend_combine.alpha_stage0   = 1;
         blend_combine.alpha_src1     = CombineStage::SrcType::TEXTURE_STAGE;
-		blend_combine.alpha_stage1 = 1;
+        blend_combine.alpha_stage1   = 1;
         blend_combine.alpha_src2     = CombineStage::SrcType::TEXTURE_STAGE;
-		blend_combine.alpha_stage2 = 1;
+        blend_combine.alpha_stage2   = 1;
         blend_combine.rgb_operand0   = CombineStage::OperandType::SRC_COLOR;
         blend_combine.rgb_operand1   = CombineStage::OperandType::SRC_COLOR;
         blend_combine.rgb_operand2   = CombineStage::OperandType::SRC_ALPHA;

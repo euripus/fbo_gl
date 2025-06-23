@@ -598,18 +598,18 @@ void RendererBase::applySamplerState(Texture const & tex) const
 // https://www.khronos.org/opengl/wiki/Texture_Combiners
 void RendererBase::applyCombineStage(CombineStage const & combine) const
 {
-	assert(combine.mode != CombineStage::CombineMode::QUANTITY);
+    assert(combine.mode != CombineStage::CombineMode::QUANTITY);
 
     int32_t const combine_func =
         static_cast<int32_t>(g_texture_gl_combine_modes[static_cast<uint32_t>(combine.mode)]);
 
     if(combine.mode != CombineStage::CombineMode::COMBINE)
     {
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, combine_func);
+        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, combine_func);
     }
     else
-    {		
-		int32_t const combine_rgb =
+    {
+        int32_t const combine_rgb =
             static_cast<int32_t>(g_texture_gl_combine_functions[static_cast<uint32_t>(combine.rgb_func)]);
         int32_t const combine_alpha =
             static_cast<int32_t>(g_texture_gl_combine_functions[static_cast<uint32_t>(combine.alpha_func)]);
@@ -618,7 +618,7 @@ void RendererBase::applyCombineStage(CombineStage const & combine) const
             uint32_t src = 0;
             if(src_type == CombineStage::SrcType::TEXTURE_STAGE)
             {
-                src  = g_texture_gl_src_types[static_cast<uint32_t>(src_type)];
+                src = g_texture_gl_src_types[static_cast<uint32_t>(src_type)];
                 src += num_stage;
             }
             else

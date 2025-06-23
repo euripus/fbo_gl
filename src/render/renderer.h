@@ -41,12 +41,14 @@ public:
                      uint32_t num_verts) const;
 
     // Textures
-    void createTexture(Texture & tex) const;
-    void uploadTextureData(Texture & tex, tex::ImageData const & tex_data, Texture::CubeFace face = Texture::CubeFace::POS_X) const;
-    void destroyTexture(Texture & tex) const;
-    bool get2DTextureData(Texture const & tex, tex::ImageData & tex_data, Texture::CubeFace face = Texture::CubeFace::POS_X) const;
-    void applySamplerState(Texture const & tex) const;
-    void applyCombineStage(CombineStage const & combine) const;
+    void          createTexture(Texture & tex) const;
+    void          uploadTextureData(Texture & tex, tex::ImageData const & tex_data,
+                                    Texture::CubeFace face = Texture::CubeFace::POS_X) const;
+    void          destroyTexture(Texture & tex) const;
+    bool          get2DTextureData(Texture const & tex, tex::ImageData & tex_data,
+                                   Texture::CubeFace face = Texture::CubeFace::POS_X) const;
+    void          applySamplerState(Texture const & tex) const;
+    void          applyCombineStage(CombineStage const & combine) const;
     uint32_t      addTextureSlot(TextureSlot slot);
     TextureSlot & getTextureSlot(uint32_t slot_num);
     void          bindSlots() const;
