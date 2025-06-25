@@ -179,7 +179,7 @@ struct CombineStage
         QUANTITY
     };
 
-    CombineMode      mode                = CombineMode::REPLACE;
+    CombineMode      mode                = CombineMode::MODULATE;
     CombineFunctions rgb_func            = CombineFunctions::REPLACE;
     CombineFunctions alpha_func          = CombineFunctions::REPLACE;
     int32_t          rgb_scale           = 0;

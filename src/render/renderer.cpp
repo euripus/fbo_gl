@@ -586,7 +586,7 @@ void RendererBase::applySamplerState(Texture const & tex) const
     {
         glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_NONE);
     }
-    else
+    else if(tex.m_type == Texture::Type::TEXTURE_2D)
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
@@ -641,13 +641,13 @@ void RendererBase::applyCombineStage(CombineStage const & combine) const
         int32_t const operand_rgb1 =
             static_cast<int32_t>(g_texture_gl_operand_types[static_cast<uint32_t>(combine.rgb_operand1)]);
         int32_t const operand_rgb2 =
-            static_cast<int32_t>(g_texture_gl_operand_types[static_cast<uint32_t>(combine.rgb_operand1)]);
+            static_cast<int32_t>(g_texture_gl_operand_types[static_cast<uint32_t>(combine.rgb_operand2)]);
         int32_t const operand_alpha0 =
             static_cast<int32_t>(g_texture_gl_operand_types[static_cast<uint32_t>(combine.alpha_operand0)]);
         int32_t const operand_alpha1 =
             static_cast<int32_t>(g_texture_gl_operand_types[static_cast<uint32_t>(combine.alpha_operand1)]);
         int32_t const operand_alpha2 =
-            static_cast<int32_t>(g_texture_gl_operand_types[static_cast<uint32_t>(combine.alpha_operand1)]);
+            static_cast<int32_t>(g_texture_gl_operand_types[static_cast<uint32_t>(combine.alpha_operand2)]);
 
         glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, combine_func);
         // Sample RGB
@@ -873,7 +873,14 @@ void RendererBase::bindLights() const
                 glLightf(light_src_num, GL_LINEAR_ATTENUATION, 5.0f / light.m_range);
                 glLightf(light_src_num, GL_QUADRATIC_ATTENUATION, 0.0f);
             }
+			else
+			{
+				glLightf(light_src_num, GL_CONSTANT_ATTENUATION, 1.0f);
+                glLightf(light_src_num, GL_LINEAR_ATTENUATION, 0.0f);
+                glLightf(light_src_num, GL_QUADRATIC_ATTENUATION, 0.0f);
+			}				
         }
+
         if(light.m_type == Light::LightType::Spot)
         {
             float const angle = glm::degrees(glm::acos(light.m_spot_cos_cutoff));
@@ -892,6 +899,22 @@ void RendererBase::unbindLights() const
     for(uint32_t light_num = 0; light_num < m_lights_queue.size(); ++light_num)
     {
         GLenum const light_src_num = GL_LIGHT0 + light_num;
+		auto const & light         = m_lights_queue[light_num];
+		
+		// reset to default
+		if(light.m_type == Light::LightType::Point || light.m_type == Light::LightType::Spot)
+        {
+			glLightf(light_src_num, GL_CONSTANT_ATTENUATION, 1.0f);
+			glLightf(light_src_num, GL_LINEAR_ATTENUATION, 0.0f);
+			glLightf(light_src_num, GL_QUADRATIC_ATTENUATION, 0.0f);
+		}
+
+		if(light.m_type == Light::LightType::Spot)
+        {
+            glLightf(light_src_num, GL_SPOT_CUTOFF, 180.0f);
+            glLightfv(light_src_num, GL_SPOT_DIRECTION, glm::value_ptr(glm::vec3(0.0f, 0.0f, -1.0f));
+            glLightf(light_src_num, GL_SPOT_EXPONENT, 0.0f);
+        }
 
         glDisable(light_src_num);
     }
