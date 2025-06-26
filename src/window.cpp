@@ -131,12 +131,12 @@ Window::Window(int width, int height, char const * title)
         glm::lookAt(glm::vec3(m_light.m_position), {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
     m_shadow_prj.is_ortho = true;
 
-    m_camera_prj.projected_texture = &m_reflection_texture;
-    m_camera_prj.is_reflection     = true;
-    glm::mat4 mtx                  = glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, -7.0f});
-    mtx                            = glm::rotate(mtx, glm::radians(45.0f), {1.0f, 0.0f, 0.0f});
-    mtx                            = glm::rotate(mtx, glm::radians(60.0f), {0.0f, 1.0f, 0.0f});
-    m_camera_prj.modelview         = mtx;
+    m_reflection_prj.projected_texture = &m_reflection_texture;
+    m_reflection_prj.is_reflection     = true;
+    glm::mat4 mtx                      = glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, -7.0f});
+    mtx                                = glm::rotate(mtx, glm::radians(45.0f), {1.0f, 0.0f, 0.0f});
+    mtx                                = glm::rotate(mtx, glm::radians(60.0f), {0.0f, 1.0f, 0.0f});
+    m_reflection_prj.modelview         = mtx;
 
     m_cube_map_prj.projected_texture = &m_cube_map_texture;
     m_cube_map_prj.is_cube_map       = true;
@@ -363,16 +363,17 @@ void Window::run()
                 v1(plane_vertex_buffer_data[3], plane_vertex_buffer_data[4], plane_vertex_buffer_data[5]),
                 v2(plane_vertex_buffer_data[6], plane_vertex_buffer_data[7], plane_vertex_buffer_data[8]);
 
-            auto plane              = TextureProjector::GetPlaneFromPoints(v0, v1, v2);
-            m_camera_prj.reflection = TextureProjector::GetReflectionMatrix(plane);
+            auto plane                  = TextureProjector::GetPlaneFromPoints(v0, v1, v2);
+            m_reflection_prj.reflection = TextureProjector::GetReflectionMatrix(plane);
 
             m_render_ptr->setClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 0.0f));
             m_render_ptr->clearColorBuffer();
             m_render_ptr->clearDepthBuffer();
 
-            m_render_ptr->setMatrix(RendererBase::MatrixType::PROJECTION, m_camera_prj.getProjectionMatrix());
+            m_render_ptr->setMatrix(RendererBase::MatrixType::PROJECTION,
+                                    m_reflection_prj.getProjectionMatrix());
             m_render_ptr->setMatrix(RendererBase::MatrixType::MODELVIEW,
-                                    m_camera_prj.getModelviewMatrix() * m_camera_prj.reflection);
+                                    m_reflection_prj.getModelviewMatrix() * m_reflection_prj.reflection);
 
             auto      old_cull = m_render_ptr->getCullState();
             CullState cull;
@@ -485,7 +486,7 @@ void Window::run()
             glm::perspective(glm::radians(45.0f),
                              static_cast<float>(m_vp_size.x) / static_cast<float>(m_vp_size.y), 0.1f, 100.0f);
         m_render_ptr->setMatrix(RendererBase::MatrixType::PROJECTION, prj_mtx);
-        m_render_ptr->setMatrix(RendererBase::MatrixType::MODELVIEW, m_camera_prj.getModelviewMatrix());
+        m_render_ptr->setMatrix(RendererBase::MatrixType::MODELVIEW, m_reflection_prj.getModelviewMatrix());
 
         m_render_ptr->bindLights();
 
@@ -526,20 +527,14 @@ void Window::run()
 
         CombineStage blend_combine;
         blend_combine.mode           = CombineStage::CombineMode::COMBINE;
-        blend_combine.rgb_func       = CombineStage::CombineFunctions::INTERPOLATE;
-        blend_combine.alpha_func     = CombineStage::CombineFunctions::REPLACE;
-        blend_combine.rgb_src0       = CombineStage::SrcType::TEXTURE_STAGE;
-        blend_combine.rgb_stage0     = 0;
-        blend_combine.rgb_src1       = CombineStage::SrcType::TEXTURE_STAGE;
-        blend_combine.rgb_stage1     = 1;
-        blend_combine.rgb_src2       = CombineStage::SrcType::TEXTURE_STAGE;
-        blend_combine.rgb_stage2     = 1;
-        blend_combine.alpha_src0     = CombineStage::SrcType::TEXTURE_STAGE;
-        blend_combine.alpha_stage0   = 0;
-        blend_combine.alpha_src1     = CombineStage::SrcType::TEXTURE_STAGE;
-        blend_combine.alpha_stage1   = 0;
-        blend_combine.alpha_src2     = CombineStage::SrcType::TEXTURE_STAGE;
-        blend_combine.alpha_stage2   = 0;
+        blend_combine.rgb_func       = CombineStage::CombineFunctions::MODULATE;
+        blend_combine.alpha_func     = CombineStage::CombineFunctions::INTERPOLATE;
+        blend_combine.rgb_src0       = CombineStage::SrcType::PREVIOUS;
+        blend_combine.rgb_src1       = CombineStage::SrcType::TEXTURE;
+        blend_combine.rgb_src2       = CombineStage::SrcType::TEXTURE;
+        blend_combine.alpha_src0     = CombineStage::SrcType::PREVIOUS;
+        blend_combine.alpha_src1     = CombineStage::SrcType::TEXTURE;
+        blend_combine.alpha_src2     = CombineStage::SrcType::TEXTURE;
         blend_combine.rgb_operand0   = CombineStage::OperandType::SRC_COLOR;
         blend_combine.rgb_operand1   = CombineStage::OperandType::SRC_COLOR;
         blend_combine.rgb_operand2   = CombineStage::OperandType::SRC_ALPHA;
@@ -548,7 +543,7 @@ void Window::run()
         blend_combine.alpha_operand2 = CombineStage::OperandType::SRC_ALPHA;
         slot.coord_source            = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;
         slot.texture                 = nullptr;
-        slot.projector               = &m_camera_prj;
+        slot.projector               = &m_reflection_prj;
         slot.combine_mode            = blend_combine;
         // slot.combine_mode.mode = CombineStage::CombineMode::DECAL;
         m_render_ptr->addTextureSlot(slot);

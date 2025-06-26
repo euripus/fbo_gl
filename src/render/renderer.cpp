@@ -873,12 +873,12 @@ void RendererBase::bindLights() const
                 glLightf(light_src_num, GL_LINEAR_ATTENUATION, 5.0f / light.m_range);
                 glLightf(light_src_num, GL_QUADRATIC_ATTENUATION, 0.0f);
             }
-			else
-			{
-				glLightf(light_src_num, GL_CONSTANT_ATTENUATION, 1.0f);
+            else
+            {
+                glLightf(light_src_num, GL_CONSTANT_ATTENUATION, 1.0f);
                 glLightf(light_src_num, GL_LINEAR_ATTENUATION, 0.0f);
                 glLightf(light_src_num, GL_QUADRATIC_ATTENUATION, 0.0f);
-			}				
+            }
         }
 
         if(light.m_type == Light::LightType::Spot)
@@ -899,17 +899,17 @@ void RendererBase::unbindLights() const
     for(uint32_t light_num = 0; light_num < m_lights_queue.size(); ++light_num)
     {
         GLenum const light_src_num = GL_LIGHT0 + light_num;
-		auto const & light         = m_lights_queue[light_num];
-		
-		// reset to default
-		if(light.m_type == Light::LightType::Point || light.m_type == Light::LightType::Spot)
-        {
-			glLightf(light_src_num, GL_CONSTANT_ATTENUATION, 1.0f);
-			glLightf(light_src_num, GL_LINEAR_ATTENUATION, 0.0f);
-			glLightf(light_src_num, GL_QUADRATIC_ATTENUATION, 0.0f);
-		}
+        auto const & light         = m_lights_queue[light_num];
 
-		if(light.m_type == Light::LightType::Spot)
+        // reset to default
+        if(light.m_type == Light::LightType::Point || light.m_type == Light::LightType::Spot)
+        {
+            glLightf(light_src_num, GL_CONSTANT_ATTENUATION, 1.0f);
+            glLightf(light_src_num, GL_LINEAR_ATTENUATION, 0.0f);
+            glLightf(light_src_num, GL_QUADRATIC_ATTENUATION, 0.0f);
+        }
+
+        if(light.m_type == Light::LightType::Spot)
         {
             glLightf(light_src_num, GL_SPOT_CUTOFF, 180.0f);
             glLightfv(light_src_num, GL_SPOT_DIRECTION, glm::value_ptr(glm::vec3(0.0f, 0.0f, -1.0f)));

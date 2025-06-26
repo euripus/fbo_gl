@@ -41,7 +41,7 @@ class Window
     Texture          m_cube_map_texture;
     TextureProjector m_decal_prj;
     TextureProjector m_shadow_prj;
-    TextureProjector m_camera_prj;
+    TextureProjector m_reflection_prj;
     TextureProjector m_cube_map_prj;
     Light            m_light;
 
