@@ -535,11 +535,11 @@ void Window::run()
         blend_combine.rgb_src2       = CombineStage::SrcType::TEXTURE_STAGE;
         blend_combine.rgb_stage2     = 1;
         blend_combine.alpha_src0     = CombineStage::SrcType::TEXTURE_STAGE;
-        blend_combine.alpha_stage0   = 1;
+        blend_combine.alpha_stage0   = 0;
         blend_combine.alpha_src1     = CombineStage::SrcType::TEXTURE_STAGE;
-        blend_combine.alpha_stage1   = 1;
+        blend_combine.alpha_stage1   = 0;
         blend_combine.alpha_src2     = CombineStage::SrcType::TEXTURE_STAGE;
-        blend_combine.alpha_stage2   = 1;
+        blend_combine.alpha_stage2   = 0;
         blend_combine.rgb_operand0   = CombineStage::OperandType::SRC_COLOR;
         blend_combine.rgb_operand1   = CombineStage::OperandType::SRC_COLOR;
         blend_combine.rgb_operand2   = CombineStage::OperandType::SRC_ALPHA;

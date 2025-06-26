@@ -665,7 +665,7 @@ void RendererBase::applyCombineStage(CombineStage const & combine) const
         glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA, alpha_src2);
         glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, operand_alpha0);
         glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, operand_alpha1);
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, operand_alpha2);
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA, operand_alpha2);
 
         if(combine.rgb_scale != 0)
         {
@@ -912,7 +912,7 @@ void RendererBase::unbindLights() const
 		if(light.m_type == Light::LightType::Spot)
         {
             glLightf(light_src_num, GL_SPOT_CUTOFF, 180.0f);
-            glLightfv(light_src_num, GL_SPOT_DIRECTION, glm::value_ptr(glm::vec3(0.0f, 0.0f, -1.0f));
+            glLightfv(light_src_num, GL_SPOT_DIRECTION, glm::value_ptr(glm::vec3(0.0f, 0.0f, -1.0f)));
             glLightf(light_src_num, GL_SPOT_EXPONENT, 0.0f);
         }
 
