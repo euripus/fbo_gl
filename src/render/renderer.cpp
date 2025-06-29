@@ -1057,7 +1057,7 @@ void RendererBase::bindDefaultFbo()
     glViewport(m_viewport_pos.x, m_viewport_pos.y, m_viewport_size.x, m_viewport_size.y);
 }
 
-void RendererBase::enableClipPlane(uint32_t plane_num, glm::vec4 plane) const
+void RendererBase::enableClipPlane(uint32_t plane_num, glm::vec4 const & plane) const
 {
     assert(plane_num < m_max_clip_planes);
 
@@ -1078,7 +1078,7 @@ void RendererBase::disableClipPlane(uint32_t plane_num) const
 }
 
 // https://en.wikibooks.org/wiki/OpenGL_Programming/Bounding_box
-void RendererBase::drawBBox(AABB const & bbox, glm::mat4 const & object2world, glm::vec3 color)
+void RendererBase::drawBBox(AABB const & bbox, glm::mat4 const & object2world, glm::vec3 const & color)
 {
     glm::vec3 const size   = bbox.max() - bbox.min();
     glm::vec3 const center = (bbox.min() + bbox.max()) / 2.0f;

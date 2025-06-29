@@ -18,10 +18,8 @@ constexpr std::array<char const *, 6> cube_map_names    = {
 };
 }   // namespace
 
-Window::Window(int width, int height, char const * title)
-    : m_size{width, height},
-      m_title{title},
-      m_pyramid{VertexBuffer::pos_norm_tex, 2}
+Window::Window(int width, int height, char const * title) :
+    m_size{width, height}, m_title{title}, m_pyramid{VertexBuffer::pos_norm_tex, 2}
 {
     // Initialise GLFW
     if(!glfwInit())
@@ -545,7 +543,6 @@ void Window::run()
         slot.texture                 = nullptr;
         slot.projector               = &m_reflection_prj;
         slot.combine_mode            = blend_combine;
-        // slot.combine_mode.mode = CombineStage::CombineMode::DECAL;
         m_render_ptr->addTextureSlot(slot);
 
         slot.coord_source      = TextureSlot::TexCoordSource::TEX_COORD_GENERATED;

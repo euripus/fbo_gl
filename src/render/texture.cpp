@@ -100,7 +100,7 @@ glm::mat4 TextureProjector::getModelviewMatrix() const
     return modelview;
 }
 
-glm::mat4 TextureProjector::GetReflectionMatrix(glm::vec4 plane)
+glm::mat4 TextureProjector::GetReflectionMatrix(glm::vec4 const & plane)
 {
     glm::vec4 c0(1.f - 2.f * plane.x * plane.x, -2.f * plane.x * plane.y, -2.f * plane.x * plane.z, 0.f),
         c1(-2.f * plane.x * plane.y, 1.f - 2.f * plane.y * plane.y, -2.f * plane.y * plane.z, 0.f),
@@ -110,10 +110,11 @@ glm::mat4 TextureProjector::GetReflectionMatrix(glm::vec4 plane)
     return glm::mat4(c0, c1, c2, c3);
 }
 
-glm::vec4 TextureProjector::GetPlaneFromPoints(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)
+glm::vec4 TextureProjector::GetPlaneFromPoints(glm::vec3 const & p0, glm::vec3 const & p1,
+                                               glm::vec3 const & p2)
 {
-    auto vec_a = glm::normalize(p1 - p0);
-    auto vec_b = glm::normalize(p2 - p0);
+    auto vec_a = p1 - p0;
+    auto vec_b = p2 - p0;
 
     auto  norm = glm::normalize(glm::cross(vec_a, vec_b));
     float d    = -(norm.x * p0.x + norm.y * p0.y + norm.z * p0.z);

@@ -70,11 +70,11 @@ public:
     void unbindTexturesFromFrameBuffer() const;
     void bindDefaultFbo();
 
-    void enableClipPlane(uint32_t plane_num, glm::vec4 plane) const;
+    void enableClipPlane(uint32_t plane_num, glm::vec4 const & plane) const;
     void disableClipPlane(uint32_t plane_num) const;
 
     // debug draw
-    void drawBBox(AABB const & bbox, glm::mat4 const & object2world, glm::vec3 color);
+    void drawBBox(AABB const & bbox, glm::mat4 const & object2world, glm::vec3 const & color);
 
     // Access to the current clearing parameters for the color, depth, and
     // stencil buffers.
@@ -161,18 +161,6 @@ private:
     // mutables
     mutable VertexBuffer::ComponentsFlags m_last_binded_vbo_components = {};
     mutable bool                          m_fbo_color_attached         = false;
-};
-
-struct VertexBufferRenewer
-{
-    VertexBufferRenewer(RendererBase & render, VertexBuffer & vb) : m_render(render), m_vb(vb)
-    {
-        m_render.uploadBuffer(m_vb);
-    }
-    ~VertexBufferRenewer() { m_render.unloadBuffer(m_vb); }
-
-    RendererBase & m_render;
-    VertexBuffer & m_vb;
 };
 
 #endif

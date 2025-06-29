@@ -196,9 +196,8 @@ bool ReadBMP(std::string const & file_name, ImageData & id)
                 red   = pPtr[i * lineLength + j + 2];
                 if(id.type == ImageData::PixelType::pt_rgba)   // !!!Not supported - the high byte in each
                                                                // DWORD is not used
-                    alpha = pPtr
-                        [i * lineLength + j
-                         + 3];   // https://msdn.microsoft.com/en-us/library/windows/desktop/dd183376(v=vs.85).aspx
+                    // https://msdn.microsoft.com/en-us/library/windows/desktop/dd183376(v=vs.85).aspx
+                    alpha = pPtr[i * lineLength + j + 3];
             }
 
             image[h_ind * id.width * bytes_per_pixel + w_ind * bytes_per_pixel + 0] = red;

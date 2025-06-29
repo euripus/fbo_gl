@@ -130,8 +130,8 @@ struct TextureProjector
     glm::mat4 getProjectionMatrix() const;
     glm::mat4 getModelviewMatrix() const;
 
-    static glm::mat4 GetReflectionMatrix(glm::vec4 plane);
-    static glm::vec4 GetPlaneFromPoints(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2);
+    static glm::mat4 GetReflectionMatrix(glm::vec4 const & plane);
+    static glm::vec4 GetPlaneFromPoints(glm::vec3 const & p0, glm::vec3 const & p1, glm::vec3 const & p2);
 };
 
 struct CombineStage
