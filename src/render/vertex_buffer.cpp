@@ -3,20 +3,10 @@
 #include <algorithm>
 
 VertexBuffer::VertexBuffer(ComponentsFlags format, uint32_t num_tex_channels) :
-    m_pos_id(0),
-    m_norm_id(0),
-    m_indices_id(0),
+    m_tex_channels_count(num_tex_channels),
     m_components(format),
-    m_is_generated(false),
     m_state(State::NODATA)
 {
-    if(num_tex_channels > 0)
-    {
-        m_texs.resize(num_tex_channels);
-        m_texs_ids.resize(num_tex_channels);
-
-        std::fill(m_texs_ids.begin(), m_texs_ids.end(), 0);
-    }
 }
 
 VertexBuffer::~VertexBuffer()

@@ -101,7 +101,7 @@ bool RendererBase::init()
     // Initialize GLEW
     GLenum glew_init_res = glewInit();
     // GLEW_ERROR_NO_GLX_DISPLAY ignored under Wayland as a workaround
-    // https://gitlab.kitware.com/vtk/vtk/-/merge_requests/11180/diffs
+	// https://github.com/nigels-com/glew/issues/172
     if(!(glew_init_res == GLEW_OK
          || (glew_init_res == GLEW_ERROR_NO_GLX_DISPLAY && (getenv("WAYLAND_DISPLAY") != nullptr))))
     {
@@ -749,11 +749,6 @@ void RendererBase::unbindSlots() const
 
 void RendererBase::clearSlots()
 {
-    // glActiveTexture(GL_TEXTURE0);
-    // glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-    // glBindTexture(GL_TEXTURE_3D, 0);
-    // glBindTexture(GL_TEXTURE_2D, 0);
-
     m_texture_slots.resize(0);
 }
 
@@ -812,9 +807,6 @@ void RendererBase::enableTextureCoordGeneration(std::uint32_t slot_num, uint32_t
 
         glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, refl_mode);
         glEnable(GL_TEXTURE_GEN_R);
-
-        // glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, refl_mode);
-        // glEnable(GL_TEXTURE_GEN_Q);
     }
 }
 

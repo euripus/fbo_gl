@@ -45,12 +45,12 @@ public:
     uint32_t        getNumTexChannels() const { return static_cast<uint32_t>(m_texs.size()); }
 
 private:
-    std::vector<float>              m_pos;
-    std::vector<std::vector<float>> m_texs;   // m_tex.size() == m_tex_id.size()
-    std::vector<float>              m_norm;
-    uint32_t                        m_pos_id = 0;
-    std::vector<uint32_t>           m_texs_ids;
-    uint32_t                        m_norm_id = 0;
+	std::vector<float> m_static_bufffer;   // for tex0 tex1 ...
+	std::vector<float> m_dynamic_buffer;   // for pos norm
+	uint32_t m_vertex_count =0;
+	uint32_t m_tex_channels_count = 0;
+	uint32_t m_static_bufffer_id = 0;
+	uint32_t m_dynamic_buffer_id = 0;
 
     std::vector<uint32_t> m_indices;
     uint32_t              m_indices_id = 0;
