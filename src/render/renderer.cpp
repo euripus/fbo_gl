@@ -101,7 +101,7 @@ bool RendererBase::init()
     // Initialize GLEW
     GLenum glew_init_res = glewInit();
     // GLEW_ERROR_NO_GLX_DISPLAY ignored under Wayland as a workaround
-	// https://github.com/nigels-com/glew/issues/172
+    // https://github.com/nigels-com/glew/issues/172
     if(!(glew_init_res == GLEW_OK
          || (glew_init_res == GLEW_ERROR_NO_GLX_DISPLAY && (getenv("WAYLAND_DISPLAY") != nullptr))))
     {

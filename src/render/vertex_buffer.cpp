@@ -3,11 +3,8 @@
 #include <algorithm>
 
 VertexBuffer::VertexBuffer(ComponentsFlags format, uint32_t num_tex_channels) :
-    m_tex_channels_count(num_tex_channels),
-    m_components(format),
-    m_state(State::NODATA)
-{
-}
+    m_tex_channels_count(num_tex_channels), m_components(format), m_state(State::NODATA)
+{}
 
 VertexBuffer::~VertexBuffer()
 {

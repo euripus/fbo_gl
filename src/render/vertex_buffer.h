@@ -42,15 +42,15 @@ public:
     void clear();
 
     ComponentsFlags getComponentsFlags() const { return m_components; }
-    uint32_t        getNumTexChannels() const { return static_cast<uint32_t>(m_texs.size()); }
+    uint32_t        getNumTexChannels() const { return m_tex_channels_count; }
 
 private:
-	std::vector<float> m_static_bufffer;   // for tex0 tex1 ...
-	std::vector<float> m_dynamic_buffer;   // for pos norm
-	uint32_t m_vertex_count =0;
-	uint32_t m_tex_channels_count = 0;
-	uint32_t m_static_bufffer_id = 0;
-	uint32_t m_dynamic_buffer_id = 0;
+    std::vector<float> m_static_bufffer;   // for tex0 tex1 ...
+    std::vector<float> m_dynamic_buffer;   // for pos norm
+    uint32_t           m_vertex_count       = 0;
+    uint32_t           m_tex_channels_count = 0;
+    uint32_t           m_static_bufffer_id  = 0;
+    uint32_t           m_dynamic_buffer_id  = 0;
 
     std::vector<uint32_t> m_indices;
     uint32_t              m_indices_id = 0;
