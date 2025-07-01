@@ -269,26 +269,18 @@ void RendererBase::uploadBuffer(VertexBuffer & geo) const
     assert(geo.m_state == VertexBuffer::State::INITDATA);
 
     if(!geo.m_is_generated)
-        glGenBuffers(1, &geo.m_pos_id);
-    glBindBuffer(GL_ARRAY_BUFFER_ARB, geo.m_pos_id);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * geo.m_pos.size(), &geo.m_pos[0], GL_STATIC_DRAW);
+        glGenBuffers(1, &geo.m_dynamic_buffer_id);
+    glBindBuffer(GL_ARRAY_BUFFER_ARB, geo.m_dynamic_buffer_id);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * geo.m_dynamic_buffer.size(), &geo.m_dynamic_buffer[0],
+                 GL_DYNAMIC_DRAW);
+
     if(geo.m_components[VertexBuffer::ComponentsBitPos::tex])
     {
-        for(uint32_t i = 0; i < geo.m_texs.size(); ++i)
-        {
-            if(!geo.m_is_generated)
-                glGenBuffers(1, &geo.m_texs_ids[i]);
-            glBindBuffer(GL_ARRAY_BUFFER_ARB, geo.m_texs_ids[i]);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * geo.m_texs[i].size(), &geo.m_texs[i][0],
-                         GL_STATIC_DRAW);
-        }
-    }
-    if(geo.m_components[VertexBuffer::ComponentsBitPos::normal])
-    {
         if(!geo.m_is_generated)
-            glGenBuffers(1, &geo.m_norm_id);
-        glBindBuffer(GL_ARRAY_BUFFER_ARB, geo.m_norm_id);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * geo.m_norm.size(), &geo.m_norm[0], GL_STATIC_DRAW);
+            glGenBuffers(1, &geo.m_static_bufffer_id);
+        glBindBuffer(GL_ARRAY_BUFFER_ARB, geo.m_static_bufffer_id);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * geo.m_static_bufffer.size(), &geo.m_static_bufffer[0],
+                     GL_STATIC_DRAW);
     }
 
     if(!geo.m_is_generated)
@@ -307,19 +299,11 @@ void RendererBase::unloadBuffer(VertexBuffer const & geo) const
 {
     if(geo.m_is_generated)
     {
-        glBindBuffer(GL_ARRAY_BUFFER_ARB, geo.m_pos_id);
-        glBufferData(GL_ARRAY_BUFFER, 0, 0, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER_ARB, geo.m_dynamic_buffer_id);
+        glBufferData(GL_ARRAY_BUFFER, 0, 0, GL_DYNAMIC_DRAW);
         if(geo.m_components[VertexBuffer::ComponentsBitPos::tex])
         {
-            for(uint32_t i = 0; i < geo.m_texs.size(); ++i)
-            {
-                glBindBuffer(GL_ARRAY_BUFFER_ARB, geo.m_texs_ids[i]);
-                glBufferData(GL_ARRAY_BUFFER, 0, 0, GL_STATIC_DRAW);
-            }
-        }
-        if(geo.m_components[VertexBuffer::ComponentsBitPos::normal])
-        {
-            glBindBuffer(GL_ARRAY_BUFFER_ARB, geo.m_norm_id);
+            glBindBuffer(GL_ARRAY_BUFFER_ARB, geo.m_static_bufffer_id);
             glBufferData(GL_ARRAY_BUFFER, 0, 0, GL_STATIC_DRAW);
         }
 
@@ -332,20 +316,12 @@ void RendererBase::deleteBuffer(VertexBuffer & geo) const
 {
     if(geo.m_is_generated)
     {
-        glDeleteBuffers(1, &geo.m_pos_id);
-        geo.m_pos_id = 0;
+        glDeleteBuffers(1, &geo.m_dynamic_buffer_id);
+        geo.m_dynamic_buffer_id = 0;
         if(geo.m_components[VertexBuffer::ComponentsBitPos::tex])
         {
-            for(uint32_t i = 0; i < geo.m_texs.size(); ++i)
-            {
-                glDeleteBuffers(1, &geo.m_texs_ids[i]);
-                geo.m_texs_ids[i] = 0;
-            }
-        }
-        if(geo.m_components[VertexBuffer::ComponentsBitPos::normal])
-        {
-            glDeleteBuffers(1, &geo.m_norm_id);
-            geo.m_norm_id = 0;
+            glDeleteBuffers(1, &geo.m_static_bufffer_id);
+            geo.m_static_bufffer_id = 0;
         }
         glDeleteBuffers(1, &geo.m_indices_id);
         geo.m_indices_id = 0;
@@ -361,9 +337,16 @@ void RendererBase::bindVertexBuffer(VertexBuffer const * geo) const
     {
         if(geo->m_state == VertexBuffer::State::COMITTED)
         {
-            glBindBuffer(GL_ARRAY_BUFFER, geo->m_pos_id);
+            glBindBuffer(GL_ARRAY_BUFFER, geo->m_dynamic_buffer_id);
             glEnableClientState(GL_VERTEX_ARRAY);
             glVertexPointer(3, GL_FLOAT, 0, static_cast<void *>(nullptr));
+
+            if(geo->m_components[VertexBuffer::ComponentsBitPos::normal])
+            {
+                glEnableClientState(GL_NORMAL_ARRAY);
+                glNormalPointer(GL_FLOAT, 0,
+                                reinterpret_cast<void *>(sizeof(float) * geo->m_vertex_count * 3));
+            }
 
             if(geo->m_components[VertexBuffer::ComponentsBitPos::tex])
             {
@@ -371,21 +354,17 @@ void RendererBase::bindVertexBuffer(VertexBuffer const * geo) const
                 {
                     if(m_texture_slots[i].coord_source == TextureSlot::TexCoordSource::TEX_COORD_BUFFER)
                     {
-                        glBindBuffer(GL_ARRAY_BUFFER, geo->m_texs_ids[m_texture_slots[i].tex_channel_num]);
+                        uint32_t tex_coord_start = static_cast<uint32_t>(sizeof(float))
+                                                   * m_texture_slots[i].tex_channel_num * geo->m_vertex_count
+                                                   * 2;
+                        glBindBuffer(GL_ARRAY_BUFFER, geo->m_static_bufffer_id);
 
                         uint32_t const texture_slot_id = GL_TEXTURE0 + i;
                         glClientActiveTexture(texture_slot_id);
                         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                        glTexCoordPointer(2, GL_FLOAT, 0, static_cast<void *>(nullptr));
+                        glTexCoordPointer(2, GL_FLOAT, 0, reinterpret_cast<void *>(tex_coord_start));
                     }
                 }
-            }
-
-            if(geo->m_components[VertexBuffer::ComponentsBitPos::normal])
-            {
-                glBindBuffer(GL_ARRAY_BUFFER, geo->m_norm_id);
-                glEnableClientState(GL_NORMAL_ARRAY);
-                glNormalPointer(GL_FLOAT, 0, static_cast<void *>(nullptr));
             }
 
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geo->m_indices_id);
@@ -618,7 +597,7 @@ void RendererBase::applyCombineStage(CombineStage const & combine) const
             uint32_t src = 0;
             if(src_type == CombineStage::SrcType::TEXTURE_STAGE)
             {
-                src = g_texture_gl_src_types[static_cast<uint32_t>(src_type)];
+                src  = g_texture_gl_src_types[static_cast<uint32_t>(src_type)];
                 src += num_stage;
             }
             else

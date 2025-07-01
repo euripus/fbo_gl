@@ -1,9 +1,11 @@
 #include "vertex_buffer.h"
 #include <assert.h>
-#include <algorithm>
+// #include <algorithm>
 
-VertexBuffer::VertexBuffer(ComponentsFlags format, uint32_t num_tex_channels) :
-    m_tex_channels_count(num_tex_channels), m_components(format), m_state(State::NODATA)
+VertexBuffer::VertexBuffer(ComponentsFlags format, uint32_t num_tex_channels)
+    : m_tex_channels_count(num_tex_channels),
+      m_components(format),
+      m_state(State::NODATA)
 {}
 
 VertexBuffer::~VertexBuffer()
@@ -15,32 +17,33 @@ void VertexBuffer::insertVertices(uint32_t const index, float const * pos,
                                   std::vector<float const *> const & tex, float const * norm,
                                   uint32_t const vcount)
 {
-    assert(index * 3 < m_pos.size());
+    assert(index < m_vertex_count);
     assert(pos);
-    assert(tex.size() == m_texs.size());
 
-    auto flt_it = m_pos.begin() + index * 3;
-    m_pos.insert(flt_it, pos, pos + vcount * 3);
-    if(m_components[ComponentsBitPos::tex])
-    {
-        assert(index * 2 < m_texs[0].size());
-
-        for(uint32_t i = 0; i < tex.size(); ++i)
-        {
-            auto tex_it = m_texs[i].begin() + index * 2;
-            m_texs[i].insert(tex_it, tex[i], tex[i] + vcount * 2);
-        }
-    }
     if(m_components[ComponentsBitPos::normal])
     {
-        assert(index * 3 < m_norm.size());
         assert(norm);
 
-        auto norm_it = m_pos.begin() + index * 3;
-        m_norm.insert(norm_it, norm, norm + vcount * 3);
+        auto norm_it = m_dynamic_buffer.begin() + m_vertex_count * 3 + index * 3;
+        m_dynamic_buffer.insert(norm_it, norm, norm + vcount * 3);
+    }
+    auto pos_it = m_dynamic_buffer.begin() + index * 3;
+    m_dynamic_buffer.insert(pos_it, pos, pos + vcount * 3);
+
+    if(m_components[ComponentsBitPos::tex])
+    {
+        assert(tex.size() == m_tex_channels_count);
+
+        for(int32_t i = static_cast<int32_t>(m_tex_channels_count) - 1; i >= 0; --i)
+        {
+            uint32_t ui     = static_cast<uint32_t>(i);
+            auto     tex_it = m_static_bufffer.begin() + m_vertex_count * 2 * ui + index * 2;
+            m_static_bufffer.insert(tex_it, tex[ui], tex[ui] + vcount * 2);
+        }
     }
 
-    m_state = State::INITDATA;
+    m_vertex_count += vcount;
+    m_state         = State::INITDATA;
 }
 
 void VertexBuffer::insertIndices(uint32_t const index, uint32_t const * indices, uint32_t const icount)
@@ -63,20 +66,22 @@ void VertexBuffer::pushBack(float const * pos, std::vector<float const *> const 
     uint32_t vstart = m_vertex_count;
     uint32_t istart = static_cast<uint32_t>(m_indices.size());
 
-	auto pos_it_end = m_dynamic_buffer.begin() + m_vertex_count * 3;
+    auto pos_it_end = m_dynamic_buffer.begin() + m_vertex_count * 3;
 
     m_dynamic_buffer.insert(pos_it_end, pos, pos + vcount * 3);
-	if(m_components[ComponentsBitPos::normal])
+    if(m_components[ComponentsBitPos::normal])
         m_dynamic_buffer.insert(m_dynamic_buffer.end(), norm, norm + vcount * 3);
 
     if(m_components[ComponentsBitPos::tex])
     {
-        assert(tex.size() > 0));
+        assert(tex.size() > 0);
+        assert(tex.size() == m_tex_channels_count);
 
-        for(uint32_t i = tex.size() - 1; i > 0; --i)
+        for(int32_t i = static_cast<int32_t>(m_tex_channels_count) - 1; i >= 0; --i)
         {
-			auto tex_end_it = m_static_bufffer.begin() + m_vertex_count * i * 2;
-            m_static_bufffer.insert(tex_end_it, tex[i], tex[i] + vcount * 2);
+            uint32_t ui         = static_cast<uint32_t>(i);
+            auto     tex_end_it = m_static_bufffer.begin() + m_vertex_count * ui * 2;
+            m_static_bufffer.insert(tex_end_it, tex[ui], tex[ui] + vcount * 2);
         }
     }
 
@@ -87,28 +92,30 @@ void VertexBuffer::pushBack(float const * pos, std::vector<float const *> const 
         m_indices[istart + i] += vstart;
     }
 
-	m_vertex_count += vcount;
-    m_state = State::INITDATA;
+    m_vertex_count += vcount;
+    m_state         = State::INITDATA;
 }
 
 void VertexBuffer::eraseVertices(uint32_t const first, uint32_t const last)
 {
     assert(last > first);
     assert(last < m_vertex_count);
-    assert(last < m_indices.size());
 
     if(m_components[ComponentsBitPos::tex])
     {
-        for(uint32_t i = m_tex_channels_count - 1; i > 0 ; ++i)
+        for(int32_t i = static_cast<int32_t>(m_tex_channels_count) - 1; i >= 0; --i)
         {
-            m_static_bufffer.erase(m_static_bufffer.begin() + m_vertex_count * 2 * i + first * 2, m_texs[i].begin()+ m_vertex_count * 2 * i + last * 2);
+            uint32_t ui = static_cast<uint32_t>(i);
+            m_static_bufffer.erase(m_static_bufffer.begin() + m_vertex_count * 2 * ui + first * 2,
+                                   m_static_bufffer.begin() + m_vertex_count * 2 * ui + last * 2);
         }
     }
 
     if(m_components[ComponentsBitPos::normal])
-        m_dynamic_buffer.erase(m_dynamic_buffer.begin() + m_vertex_count * 3 + first * 3, m_dynamic_buffer.begin() + m_vertex_count * 3 + last * 3);
-	m_dynamic_buffer.erase(m_dynamic_buffer.begin() + first * 3, m_dynamic_buffer.begin() + last * 3);
-	
+        m_dynamic_buffer.erase(m_dynamic_buffer.begin() + m_vertex_count * 3 + first * 3,
+                               m_dynamic_buffer.begin() + m_vertex_count * 3 + last * 3);
+    m_dynamic_buffer.erase(m_dynamic_buffer.begin() + first * 3, m_dynamic_buffer.begin() + last * 3);
+
     m_indices.erase(m_indices.begin() + first, m_indices.begin() + last);
 
     for(uint32_t i = 0; i < m_indices.size(); i++)
