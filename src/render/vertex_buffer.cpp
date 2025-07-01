@@ -60,21 +60,26 @@ void VertexBuffer::pushBack(float const * pos, std::vector<float const *> const 
     assert(pos);
     assert(indices);
 
-    uint32_t vstart = static_cast<uint32_t>(m_pos.size() / 3);
+    uint32_t vstart = m_vertex_count;
     uint32_t istart = static_cast<uint32_t>(m_indices.size());
 
-    m_pos.insert(m_pos.end(), pos, pos + vcount * 3);
+	auto pos_it_end = m_dynamic_buffer.begin() + m_vertex_count * 3;
+
+    m_dynamic_buffer.insert(pos_it_end, pos, pos + vcount * 3);
+	if(m_components[ComponentsBitPos::normal])
+        m_dynamic_buffer.insert(m_dynamic_buffer.end(), norm, norm + vcount * 3);
+
     if(m_components[ComponentsBitPos::tex])
     {
-        assert(tex.size() == m_texs.size());
+        assert(tex.size() > 0));
 
-        for(uint32_t i = 0; i < tex.size(); ++i)
+        for(uint32_t i = tex.size() - 1; i > 0; --i)
         {
-            m_texs[i].insert(m_texs[i].end(), tex[i], tex[i] + vcount * 2);
+			auto tex_end_it = m_static_bufffer.begin() + m_vertex_count * i * 2;
+            m_static_bufffer.insert(tex_end_it, tex[i], tex[i] + vcount * 2);
         }
     }
-    if(m_components[ComponentsBitPos::normal])
-        m_norm.insert(m_norm.end(), norm, norm + vcount * 3);
+
     m_indices.insert(m_indices.end(), indices, indices + icount);
 
     for(uint32_t i = 0; i < icount; i++)
@@ -82,25 +87,28 @@ void VertexBuffer::pushBack(float const * pos, std::vector<float const *> const 
         m_indices[istart + i] += vstart;
     }
 
+	m_vertex_count += vcount;
     m_state = State::INITDATA;
 }
 
 void VertexBuffer::eraseVertices(uint32_t const first, uint32_t const last)
 {
     assert(last > first);
-    assert(last * 3 < m_pos.size());
+    assert(last < m_vertex_count);
     assert(last < m_indices.size());
 
-    m_pos.erase(m_pos.begin() + first * 3, m_pos.begin() + last * 3);
     if(m_components[ComponentsBitPos::tex])
     {
-        for(uint32_t i = 0; i < m_texs.size(); ++i)
+        for(uint32_t i = m_tex_channels_count - 1; i > 0 ; ++i)
         {
-            m_texs[i].erase(m_texs[i].begin() + first * 2, m_texs[i].begin() + last * 2);
+            m_static_bufffer.erase(m_static_bufffer.begin() + m_vertex_count * 2 * i + first * 2, m_texs[i].begin()+ m_vertex_count * 2 * i + last * 2);
         }
     }
+
     if(m_components[ComponentsBitPos::normal])
-        m_norm.erase(m_norm.begin() + first * 3, m_norm.begin() + last * 3);
+        m_dynamic_buffer.erase(m_dynamic_buffer.begin() + m_vertex_count * 3 + first * 3, m_dynamic_buffer.begin() + m_vertex_count * 3 + last * 3);
+	m_dynamic_buffer.erase(m_dynamic_buffer.begin() + first * 3, m_dynamic_buffer.begin() + last * 3);
+	
     m_indices.erase(m_indices.begin() + first, m_indices.begin() + last);
 
     for(uint32_t i = 0; i < m_indices.size(); i++)
@@ -118,11 +126,8 @@ void VertexBuffer::clear()
 {
     m_state = State::NODATA;
 
-    m_pos.clear();
-    for(auto & ch : m_texs)
-        ch.clear();
-    m_norm.clear();
-    m_indices.clear();
+    m_static_bufffer.resize(0);
+    m_dynamic_buffer.resize(0);
 }
 
 void Add2DRectangle(VertexBuffer & vb, float x0, float y0, float x1, float y1, float s0, float t0, float s1,
