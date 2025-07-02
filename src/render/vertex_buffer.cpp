@@ -135,6 +135,8 @@ void VertexBuffer::clear()
 
     m_static_bufffer.resize(0);
     m_dynamic_buffer.resize(0);
+	m_vertex_count       = 0;
+    m_tex_channels_count = 0;
 }
 
 void Add2DRectangle(VertexBuffer & vb, float x0, float y0, float x1, float y1, float s0, float t0, float s1,
