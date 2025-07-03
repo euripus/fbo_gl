@@ -597,7 +597,7 @@ void RendererBase::applyCombineStage(CombineStage const & combine) const
             uint32_t src = 0;
             if(src_type == CombineStage::SrcType::TEXTURE_STAGE)
             {
-                src  = g_texture_gl_src_types[static_cast<uint32_t>(src_type)];
+                src = g_texture_gl_src_types[static_cast<uint32_t>(src_type)];
                 src += num_stage;
             }
             else
