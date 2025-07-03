@@ -30,7 +30,7 @@ public:
     constexpr static ComponentsFlags pos_norm_tex = 0b000111;   // pos + norm + tex
 
     VertexBuffer(ComponentsFlags format = pos_norm_tex, uint32_t num_tex_channels = 1);
-    virtual ~VertexBuffer();
+    ~VertexBuffer();
 
     void insertVertices(uint32_t const index, float const * pos, std::vector<float const *> const & tex,
                         float const * norm, uint32_t const vcount);
@@ -43,6 +43,9 @@ public:
 
     ComponentsFlags getComponentsFlags() const { return m_components; }
     uint32_t        getNumTexChannels() const { return m_tex_channels_count; }
+	uint32_t        getNumVertex() const { return m_vertex_count; }
+	uint32_t        getNumTriangles() const { return m_indices.size() / 3; }
+	void            updateDynamicBuffer(std::vector<float> pos, std::vector<float> norm);
 
 private:
     std::vector<float> m_static_bufffer;   // for tex0 tex1 ...
