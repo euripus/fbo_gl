@@ -44,7 +44,7 @@ public:
     ComponentsFlags getComponentsFlags() const { return m_components; }
     uint32_t        getNumTexChannels() const { return m_tex_channels_count; }
     uint32_t        getNumVertex() const { return m_vertex_count; }
-    uint32_t        getNumTriangles() const { return m_indices.size() / 3; }
+    uint32_t        getNumTriangles() const { return static_cast<uint32_t>(m_indices.size()) / 3; }
     void            updateDynamicBuffer(std::vector<float> pos, std::vector<float> norm);
 
 private:
