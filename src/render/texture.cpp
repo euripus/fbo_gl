@@ -9,7 +9,7 @@ bool Texture::loadImageDataFromFile(std::string const & fname, RendererBase cons
     if(!tex::ReadTGA(fname, image))
         return false;
 
-    m_comitted    = false;
+    m_commited    = false;
     m_gen_mips    = true;
     m_type        = Type::TEXTURE_2D;
     m_format      = image.type == tex::ImageData::PixelType::pt_rgb ? Format::R8G8B8 : Format::R8G8B8A8;
@@ -27,7 +27,7 @@ bool Texture::loadImageDataFromFile(std::string const & fname, RendererBase cons
 
 bool Texture::loadCubeMapFromFiles(std::array<char const *, 6> const & fnames, RendererBase const & render)
 {
-    m_comitted    = false;
+    m_commited    = false;
     m_gen_mips    = false;
     m_type        = Type::TEXTURE_CUBE;
     m_depth       = 0;

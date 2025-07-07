@@ -292,7 +292,7 @@ void RendererBase::uploadBuffer(VertexBuffer & geo) const
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * geo.m_indices.size(), &geo.m_indices[0],
                  GL_STATIC_DRAW);
 
-    geo.m_state = VertexBuffer::State::COMITTED;
+    geo.m_state = VertexBuffer::State::COMMITED;
 }
 
 void RendererBase::unloadBuffer(VertexBuffer const & geo) const
@@ -335,7 +335,7 @@ void RendererBase::bindVertexBuffer(VertexBuffer const * geo) const
 {
     if(geo != nullptr)
     {
-        if(geo->m_state == VertexBuffer::State::COMITTED)
+        if(geo->m_state == VertexBuffer::State::COMMITED)
         {
             glBindBuffer(GL_ARRAY_BUFFER, geo->m_dynamic_buffer_id);
             glEnableClientState(GL_VERTEX_ARRAY);
@@ -480,7 +480,7 @@ void RendererBase::uploadTextureData(Texture & tex, tex::ImageData const & tex_d
 
     glBindTexture(tex_type, 0);
 
-    tex.m_comitted = true;
+    tex.m_commited = true;
 }
 
 void RendererBase::destroyTexture(Texture & tex) const
@@ -489,7 +489,7 @@ void RendererBase::destroyTexture(Texture & tex) const
 
     glDeleteTextures(1, &tex.m_render_id);
     tex.m_render_id = 0;
-    tex.m_comitted  = false;
+    tex.m_commited  = false;
 }
 
 bool RendererBase::get2DTextureData(Texture const & tex, tex::ImageData & tex_data,
@@ -997,12 +997,12 @@ bool RendererBase::bindTextureAsFrameBuffer(Texture * color_tex, Texture * depth
 
     if(color_tex != nullptr)
     {
-        color_tex->m_comitted = true;
+        color_tex->m_commited = true;
     }
 
     if(depth_tex != nullptr)
     {
-        depth_tex->m_comitted = true;
+        depth_tex->m_commited = true;
     }
 
     glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));
