@@ -13,7 +13,7 @@ public:
     {
         NODATA,
         INITDATA,
-        COMITTED
+        COMMITED
     };
 
     struct ComponentsBitPos
