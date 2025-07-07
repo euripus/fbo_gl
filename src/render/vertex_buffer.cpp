@@ -1,6 +1,6 @@
 #include "vertex_buffer.h"
 #include <assert.h>
-// #include <algorithm>
+#include <algorithm>
 
 VertexBuffer::VertexBuffer(ComponentsFlags format, uint32_t num_tex_channels)
     : m_tex_channels_count(num_tex_channels),
@@ -278,16 +278,22 @@ void VertexBuffer::clear()
     m_dynamic_buffer.resize(0);
     m_indices.resize(0);
     m_vertex_count       = 0;
-    m_tex_channels_count = 0;
 }
 
-void VertexBuffer::updateDynamicBuffer(std::vector<float> pos, std::vector<float> norm)
+void VertexBuffer::updateDynamicBuffer(std::vector<glm::vec3> const & pos, std::vector<glm::vec3> const & norm)
 {
-    assert((pos.size() == m_vertex_count * 3) && (norm.size() == m_vertex_count * 3));
+    assert((pos.size() == m_vertex_count) && (norm.size() == m_vertex_count));
+	assert(getComponentsFlags()[VertexBuffer::ComponentsBitPos::normal]);
 
-    std::vector<float> new_dynamic_buffer(std::move(pos));
-    new_dynamic_buffer.insert(new_dynamic_buffer.end(), std::make_move_iterator(norm.begin()),
-                              std::make_move_iterator(norm.end()));
+    std::vector<float> new_dynamic_buffer(m_vertex_count * 3 * 2, 0.f);
+
+	float const * start = &pos[0].x;
+	float const * end = start + m_vertex_count * 3;
+	std::copy(start, end, new_dynamic_buffer.begin());
+
+    start = &norm[0].x;
+	end = start + m_vertex_count * 3;
+	std::copy(start, end, new_dynamic_buffer.begin() + m_vertex_count * 3);
 
     m_dynamic_buffer.swap(new_dynamic_buffer);
 }

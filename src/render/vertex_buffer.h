@@ -4,6 +4,7 @@
 #include <vector>
 #include <bitset>
 #include <cstdint>
+#include <glm/glm.hpp>
 
 class VertexBuffer
 {
@@ -45,7 +46,7 @@ public:
     uint32_t        getNumTexChannels() const { return m_tex_channels_count; }
     uint32_t        getNumVertex() const { return m_vertex_count; }
     uint32_t        getNumTriangles() const { return static_cast<uint32_t>(m_indices.size()) / 3; }
-    void            updateDynamicBuffer(std::vector<float> pos, std::vector<float> norm);
+    void            updateDynamicBuffer(std::vector<glm::vec3> const & pos, std::vector<glm::vec3> const & norm);
 
 private:
     std::vector<float> m_static_bufffer;   // for tex0 tex1 ...
