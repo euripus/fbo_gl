@@ -818,7 +818,7 @@ uint32_t RendererBase::addLight(Light light)
         return static_cast<uint32_t>(m_lights_queue.size() - 1);
     }
 
-    return 0;
+    return static_cast<uint32_t>(-1);
 }
 
 void RendererBase::bindLights() const
@@ -902,7 +902,7 @@ bool RendererBase::bindTextureAsFrameBuffer(Texture * color_tex, Texture * depth
 
     if(color_tex != nullptr && depth_tex != nullptr)
     {
-        if(color_tex->m_width != depth_tex->m_width && color_tex->m_height != depth_tex->m_height)
+        if(color_tex->m_width != depth_tex->m_width || color_tex->m_height != depth_tex->m_height)
             return false;
     }
 

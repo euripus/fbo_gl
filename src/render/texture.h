@@ -79,7 +79,7 @@ public:
     bool loadCubeMapFromFiles(std::array<char const *, 6> const & fnames, RendererBase const & render);
 
     // protected:
-    bool         m_commited = false;
+    bool         m_committed = false;
     bool         m_gen_mips = true;
     Type         m_type     = Type::TEXTURE_NOTYPE;
     Format       m_format   = Format::NOFORMAT;

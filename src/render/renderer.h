@@ -19,7 +19,7 @@ public:
     };
 
     std::string const & getRenderVendor() const { return m_vendor; }
-    std::string const & getRenderRendrer() const { return m_renderer; }
+    std::string const & getRenderRenderer() const { return m_renderer; }
     std::string const & getRenderVersion() const { return m_version; }
 
     bool init();
