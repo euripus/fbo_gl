@@ -80,13 +80,13 @@ public:
 
     // protected:
     bool         m_committed = false;
-    bool         m_gen_mips = true;
-    Type         m_type     = Type::TEXTURE_NOTYPE;
-    Format       m_format   = Format::NOFORMAT;
-    SamplerState m_sampler  = {};
-    uint32_t     m_width    = 0;
-    uint32_t     m_height   = 0;
-    uint32_t     m_depth    = 0;
+    bool         m_gen_mips  = true;
+    Type         m_type      = Type::TEXTURE_NOTYPE;
+    Format       m_format    = Format::NOFORMAT;
+    SamplerState m_sampler   = {};
+    uint32_t     m_width     = 0;
+    uint32_t     m_height    = 0;
+    uint32_t     m_depth     = 0;
 
     uint32_t m_render_id = 0;
 
